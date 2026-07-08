@@ -1,0 +1,76 @@
+[
+    {
+        "id": 1,
+        "name": "IEEE Robotics",
+        "description": "Robotics Project Exhibition",
+        "category": "Technical",
+        "building": "Main Block",
+        "floor": 1,
+        "node_id": 13,
+        "status": "active",
+        "opening_time": "09:00",
+        "closing_time": "17:00"
+    },
+    {
+        "id": 2,
+        "name": "Campus Life",
+        "description": "Official Campus Life Stall",
+        "category": "Club",
+        "building": "Main Block",
+        "floor": 1,
+        "node_id": 13,
+        "status": "active",
+        "opening_time": "09:00",
+        "closing_time": "17:00"
+    },
+    {
+        "id": 3,
+        "name": "Food Court",
+        "description": "Snacks and Beverages",
+        "category": "Food",
+        "building": "OAT",
+        "floor": 0,
+        "node_id": 31,
+        "status": "active",
+        "opening_time": "09:00",
+        "closing_time": "18:00"
+    },
+    {
+        "id": 4,
+        "name": "ECE Department",
+        "description": "Department Project Display",
+        "category": "Department",
+        "building": "ECE Block",
+        "floor": 1,
+        "node_id": 103,
+        "status": "active",
+        "opening_time": "09:00",
+        "closing_time": "17:00"
+    },
+    {
+        "id": 5,
+        "name": "Civil Department",
+        "description": "Department Exhibition",
+        "category": "Department",
+        "building": "Civil Block",
+        "floor": 1,
+        "node_id": 37,
+        "status": "active",
+        "opening_time": "09:00",
+        "closing_time": "17:00"
+    },
+    {
+        "name": "Stall 1",
+        "description": "Added via Map Interface",
+        "category": "Misc",
+        "building": "Custom Location",
+        "floor": 0,
+        "node_id": null,
+        "latitude": 13.032492873503095,
+        "longitude": 80.17959058284761,
+        "status": "active",
+        "opening_time": "09:00",
+        "closing_time": "17:00",
+        "id": 6
+    }
+]

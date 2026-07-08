@@ -1,0 +1,253 @@
+{
+    "nodes": [
+        {
+            "name": "Mainroad1",
+            "lat": 13.031658259650174,
+            "lng": 80.179660320282,
+            "id": 90000
+        },
+        {
+            "id": 90002,
+            "name": "Mech Parking Center",
+            "node_type": "BuildingMesh",
+            "building_id": "08C6CC724E4000036E60",
+            "lat": 13.032009869636699,
+            "lng": 80.17879562407094
+        },
+        {
+            "id": 90004,
+            "name": "OAT Center",
+            "node_type": "BuildingMesh",
+            "building_id": "0B55D2648940001D7C74",
+            "lat": 13.03254534835465,
+            "lng": 80.17878396780226
+        }
+    ],
+    "edges": [
+        {
+            "from": 40,
+            "to": 90000,
+            "weight": 93.04667226619559
+        },
+        {
+            "from": 90000,
+            "to": 1,
+            "weight": 19.793108238290845
+        },
+        {
+            "from": 1,
+            "to": 90002,
+            "distance": 98.71854312434836,
+            "thickness": 1.0,
+            "weight": 98.71854312434836,
+            "building_id": "08C6CC724E4000036E60"
+        },
+        {
+            "from": 2,
+            "to": 90002,
+            "distance": 29.45436042985755,
+            "thickness": 1.0,
+            "weight": 29.45436042985755,
+            "building_id": "08C6CC724E4000036E60"
+        },
+        {
+            "from": 3,
+            "to": 90002,
+            "distance": 96.45661718950798,
+            "thickness": 1.0,
+            "weight": 96.45661718950798,
+            "building_id": "08C6CC724E4000036E60"
+        },
+        {
+            "from": 81,
+            "to": 90002,
+            "distance": 84.4036798387043,
+            "thickness": 1.0,
+            "weight": 84.4036798387043,
+            "building_id": "08C6CC724E4000036E60"
+        },
+        {
+            "from": 5,
+            "to": 90004,
+            "distance": 49.13736865006502,
+            "thickness": 1.0,
+            "weight": 49.13736865006502,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 7,
+            "to": 90004,
+            "distance": 52.39723635555081,
+            "thickness": 1.0,
+            "weight": 52.39723635555081,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 8,
+            "to": 90004,
+            "distance": 38.436144378452106,
+            "thickness": 1.0,
+            "weight": 38.436144378452106,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 9,
+            "to": 90004,
+            "distance": 44.150293518773516,
+            "thickness": 1.0,
+            "weight": 44.150293518773516,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 11,
+            "to": 90004,
+            "distance": 41.294977832410524,
+            "thickness": 1.0,
+            "weight": 41.294977832410524,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 12,
+            "to": 90004,
+            "distance": 52.7164900789529,
+            "thickness": 1.0,
+            "weight": 52.7164900789529,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 30,
+            "to": 90004,
+            "distance": 42.929606563923286,
+            "thickness": 1.0,
+            "weight": 42.929606563923286,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 31,
+            "to": 90004,
+            "distance": 37.617868158917375,
+            "thickness": 1.0,
+            "weight": 37.617868158917375,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 52,
+            "to": 90004,
+            "distance": 33.299259231805664,
+            "thickness": 1.0,
+            "weight": 33.299259231805664,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 55,
+            "to": 90004,
+            "distance": 26.33558955136228,
+            "thickness": 1.0,
+            "weight": 26.33558955136228,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 70,
+            "to": 90004,
+            "distance": 22.756631952090256,
+            "thickness": 1.0,
+            "weight": 22.756631952090256,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 82,
+            "to": 90004,
+            "distance": 23.65499374483314,
+            "thickness": 1.0,
+            "weight": 23.65499374483314,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 84,
+            "to": 90004,
+            "distance": 30.124834601897916,
+            "thickness": 1.0,
+            "weight": 30.124834601897916,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 91,
+            "to": 90004,
+            "distance": 20.894011868392514,
+            "thickness": 1.0,
+            "weight": 20.894011868392514,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 94,
+            "to": 90004,
+            "distance": 31.24642278022326,
+            "thickness": 1.0,
+            "weight": 31.24642278022326,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 90001,
+            "to": 90004,
+            "distance": 0.0,
+            "thickness": 1.0,
+            "weight": 0.0,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 90003,
+            "to": 90004,
+            "distance": 44.798360968174066,
+            "thickness": 1.0,
+            "weight": 44.798360968174066,
+            "building_id": "0B55D2648940001D7C74"
+        },
+        {
+            "from": 2,
+            "to": 5,
+            "weight": 28.829813692251555
+        },
+        {
+            "from": 2,
+            "to": 5,
+            "weight": 28.829813692251555
+        },
+        {
+            "from": 5,
+            "to": 2,
+            "weight": 28.829813692251555
+        },
+        {
+            "from": 5,
+            "to": 2,
+            "weight": 28.829813692251555
+        },
+        {
+            "from": 2,
+            "to": 5,
+            "weight": 28.829813692251555
+        },
+        {
+            "from": 5,
+            "to": 2,
+            "weight": 28.829813692251555
+        },
+        {
+            "from": 5,
+            "to": 2,
+            "weight": 28.829813692251555
+        },
+        {
+            "from": 5,
+            "to": 2,
+            "weight": 28.829813692251555
+        }
+    ],
+    "overrides": {
+        "40": {
+            "lat": 13.031689601415591,
+            "lng": 80.18051862716676
+        }
+    },
+    "edge_overrides": {}
+}

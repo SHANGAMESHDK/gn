@@ -1,0 +1,122 @@
+{
+    "02EAA648E83FFFF7E900": {
+        "height": 8,
+        "color": "#d4ff00",
+        "Name": "Girls Hostel",
+        "walkable": false
+    },
+    "0A5C92D42F3FFFFC48C8": {
+        "height": 24,
+        "color": "#d4ff00",
+        "Name": "Academic Block",
+        "walkable": false
+    },
+    "0149004D0D3FFFF6E0F3": {
+        "height": 28,
+        "color": "#d4ff00",
+        "Name": "Civil Block",
+        "walkable": false
+    },
+    "006A0DAE3B3FFFEAE827": {
+        "height": 20,
+        "walkable": false,
+        "color": "#d4ff00",
+        "Name": "Main Block"
+    },
+    "0B55D2648940001D7C74": {
+        "height": 0,
+        "color": "#006eff",
+        "Name": "OAT",
+        "walkable": true
+    },
+    "0D4F18BA943FFFFD7430": {
+        "height": 8,
+        "color": "#d4ff00",
+        "Name": "Automobile Dept",
+        "walkable": false
+    },
+    "0F31BF6DAB40001DF13C": {
+        "height": 5,
+        "color": "#006eff",
+        "Name": "TRP",
+        "walkable": false
+    },
+    "08C6CC724E4000036E60": {
+        "height": 0,
+        "color": "#006eff",
+        "Name": "Mech Parking",
+        "walkable": true
+    },
+    "0647414E7F4000156138": {
+        "height": 0,
+        "color": "#000000",
+        "Name": "Staff Parking",
+        "walkable": false
+    },
+    "0DCFDA12323FFFF5882B": {
+        "height": 24,
+        "color": "#d4ff00",
+        "Name": "Mechanical Block",
+        "walkable": false
+    },
+    "08AD93F19F3FFFECAA60": {
+        "height": 28,
+        "color": "#d4ff00",
+        "Name": "EB Block",
+        "walkable": false
+    },
+    "0809EFED70400012D277": {
+        "height": 0,
+        "color": "#10b981",
+        "Name": "Cricket Nets",
+        "walkable": false
+    },
+    "0A62C9E3EB4000072233": {
+        "height": 0,
+        "color": "#006eff",
+        "Name": "Temple",
+        "walkable": false
+    },
+    "03480E30D94000042066": {
+        "height": 0,
+        "color": "#006eff",
+        "Name": "Bus Parking",
+        "walkable": false
+    },
+    "08177B542A400014D5C0": {
+        "height": 0,
+        "color": "#006eff",
+        "Name": "Student Parking",
+        "walkable": false
+    },
+    "0342CBE2243FFFEF7F14": {
+        "height": 20,
+        "color": "#d4ff00",
+        "Name": "Block 3",
+        "walkable": false
+    },
+    "042CA63D7D3FFFF1DF8C": {
+        "height": 24,
+        "color": "#d4ff00",
+        "Name": "Block 2",
+        "walkable": false
+    },
+    "0E07D319DF3FFFF2E163": {
+        "height": 20,
+        "color": "#d4ff00",
+        "Name": "Canteen Block",
+        "walkable": false
+    },
+    "0058A4BC193FFFF3A024": {
+        "height": 8,
+        "color": "#d4ff00",
+        "Name": "Office",
+        "walkable": false
+    },
+    "0DB621884A3FFFF49170": {
+        "height": 20,
+        "color": "#d4ff00",
+        "Name": "Dental Block",
+        "walkable": false
+    }
+}

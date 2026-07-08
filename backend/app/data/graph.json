@@ -1,0 +1,841 @@
+{
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "name": "GATE_MAIN_IN",
+            "node_type": "Gate",
+            "latitude": 13.031836154275197,
+            "longitude": 80.17966671549448,
+            "id": 1
+        },
+        {
+            "name": "GATE_MECH",
+            "node_type": "Gate",
+            "latitude": 13.032006028491878,
+            "longitude": 80.17906061895656,
+            "id": 2
+        },
+        {
+            "name": "JUNC_MAIN_01",
+            "node_type": "Junction",
+            "latitude": 13.031931611132938,
+            "longitude": 80.17965998026698,
+            "id": 3
+        },
+        {
+            "name": "MEXIT2",
+            "node_type": "Junction",
+            "latitude": 13.03194963128313,
+            "longitude": 80.1797581162028,
+            "id": 4
+        },
+        {
+            "name": "DOKKUENTRY1",
+            "node_type": "Junction",
+            "latitude": 13.032258645193709,
+            "longitude": 80.1791205329782,
+            "id": 5
+        },
+        {
+            "name": "Princiofficearch1",
+            "node_type": "Junction",
+            "latitude": 13.032826988402478,
+            "longitude": 80.1791620556092,
+            "id": 7
+        },
+        {
+            "name": "MainCorridorJ1",
+            "node_type": "Junction",
+            "latitude": 13.032885182339875,
+            "longitude": 80.17884813263983,
+            "id": 8
+        },
+        {
+            "name": "MaincoridorJ2",
+            "node_type": "Junction",
+            "latitude": 13.032936841396072,
+            "longitude": 80.17885137024919,
+            "id": 9
+        },
+        {
+            "name": "MaincoriddorJ3",
+            "node_type": "Junction",
+            "latitude": 13.032939301924348,
+            "longitude": 80.17860426721786,
+            "id": 10
+        },
+        {
+            "name": "MainCorridorJ4",
+            "node_type": "Junction",
+            "latitude": 13.032883190663496,
+            "longitude": 80.17862930510061,
+            "id": 11
+        },
+        {
+            "name": "JunctionGH1",
+            "node_type": "Junction",
+            "latitude": 13.03270767834823,
+            "longitude": 80.1783382803453,
+            "id": 12
+        },
+        {
+            "name": "GreenCJ1",
+            "node_type": "Junction",
+            "latitude": 13.033002594378168,
+            "longitude": 80.17885490961811,
+            "id": 13
+        },
+        {
+            "name": "Maincoriddor7",
+            "node_type": "Junction",
+            "latitude": 13.03287803053957,
+            "longitude": 80.17916716820358,
+            "id": 14
+        },
+        {
+            "name": "Princi1",
+            "node_type": "Junction",
+            "latitude": 13.032860727806744,
+            "longitude": 80.17940482071852,
+            "id": 20
+        },
+        {
+            "name": "ParkingJ1",
+            "node_type": "Junction",
+            "latitude": 13.032732110315532,
+            "longitude": 80.17964506188095,
+            "id": 21
+        },
+        {
+            "name": "B3J1",
+            "node_type": "Junction",
+            "latitude": 13.032796467300027,
+            "longitude": 80.17964810228936,
+            "id": 22
+        },
+        {
+            "name": "B3J2",
+            "node_type": "Junction",
+            "latitude": 13.032797280082473,
+            "longitude": 80.17969351274618,
+            "id": 23
+        },
+        {
+            "name": "B3J3",
+            "node_type": "Junction",
+            "latitude": 13.032800064614962,
+            "longitude": 80.17974227969354,
+            "id": 24
+        },
+        {
+            "name": "B3J4",
+            "node_type": "Junction",
+            "latitude": 13.032802215728625,
+            "longitude": 80.17979940885287,
+            "id": 26
+        },
+        {
+            "name": "B3J4",
+            "node_type": "Junction",
+            "latitude": 13.032725027327238,
+            "longitude": 80.17979687507074,
+            "id": 25
+        },
+        {
+            "name": "OATJ1",
+            "node_type": "Junction",
+            "latitude": 13.032326270027115,
+            "longitude": 80.17910210113473,
+            "id": 30
+        },
+        {
+            "name": "OATJ2",
+            "node_type": "Junction",
+            "latitude": 13.03250050849967,
+            "longitude": 80.17911946041394,
+            "id": 31
+        },
+        {
+            "name": "ParkBusJ1",
+            "node_type": "Junction",
+            "latitude": 13.033292525613382,
+            "longitude": 80.17976368020115,
+            "id": 33
+        },
+        {
+            "name": "OutBackJ1",
+            "node_type": "Junction",
+            "latitude": 13.033262321707543,
+            "longitude": 80.18052816257352,
+            "id": 35
+        },
+        {
+            "name": "LeftlaneJOUT1",
+            "node_type": "Junction",
+            "latitude": 13.032833865971632,
+            "longitude": 80.18046774795846,
+            "id": 36
+        },
+        {
+            "name": "RightlaneJOUT1",
+            "node_type": "Junction",
+            "latitude": 13.032832161497337,
+            "longitude": 80.18053677477103,
+            "id": 38
+        },
+        {
+            "name": "BusFrontEntrance1",
+            "node_type": "Gate",
+            "latitude": 13.031689601415591,
+            "longitude": 80.18051862716676,
+            "id": 40
+        },
+        {
+            "name": "BackEntrance1",
+            "node_type": "Gate",
+            "latitude": 13.03348805930315,
+            "longitude": 80.18052727762938,
+            "id": 41
+        },
+        {
+            "name": "BusGate1",
+            "node_type": "Gate",
+            "latitude": 13.0333898423495,
+            "longitude": 80.17976540375405,
+            "id": 44
+        },
+        {
+            "name": "MECHENTRANCE",
+            "node_type": "Entrance",
+            "latitude": 13.032155679091364,
+            "longitude": 80.17948430237875,
+            "id": 50
+        },
+        {
+            "name": "OAT1",
+            "node_type": "Entrance",
+            "latitude": 13.032345972754964,
+            "longitude": 80.17900762019647,
+            "id": 52
+        },
+        {
+            "name": "OAT2",
+            "node_type": "Entrance",
+            "latitude": 13.032513646640167,
+            "longitude": 80.17901879845546,
+            "id": 55
+        },
+        {
+            "name": "OAT3",
+            "node_type": "Entrance",
+            "latitude": 13.03274257995504,
+            "longitude": 80.17883897375155,
+            "id": 70
+        },
+        {
+            "name": "ACADM1",
+            "node_type": "Entrance",
+            "latitude": 13.032489753876964,
+            "longitude": 80.1777494270939,
+            "id": 80
+        },
+        {
+            "name": "AUTO1",
+            "node_type": "Entrance",
+            "latitude": 13.032189603565408,
+            "longitude": 80.1780577564518,
+            "id": 81
+        },
+        {
+            "name": "CIVILE",
+            "node_type": "Entrance",
+            "latitude": 13.03233250776034,
+            "longitude": 80.17878459569937,
+            "id": 82
+        },
+        {
+            "name": "TRPENTRANCE1",
+            "node_type": "Entrance",
+            "latitude": 13.03238629431073,
+            "longitude": 80.17856448458548,
+            "id": 84
+        },
+        {
+            "name": "ERPE2",
+            "node_type": "Entrance",
+            "latitude": 13.032364779690575,
+            "longitude": 80.17873163663438,
+            "id": 91
+        },
+        {
+            "name": "OATENT5",
+            "node_type": "Entrance",
+            "latitude": 13.032560893728137,
+            "longitude": 80.17850325066657,
+            "id": 94
+        },
+        {
+            "name": "GIRLHENT",
+            "node_type": "Entrance",
+            "latitude": 13.032486420042986,
+            "longitude": 80.17818549627658,
+            "id": 96
+        },
+        {
+            "name": "MainBE1",
+            "node_type": "Entrance",
+            "latitude": 13.033006080868267,
+            "longitude": 80.17846394511052,
+            "id": 100
+        },
+        {
+            "name": "MainBE2",
+            "node_type": "Entrance",
+            "latitude": 13.033193092566538,
+            "longitude": 80.17850697435082,
+            "id": 101
+        },
+        {
+            "name": "EBBE1",
+            "node_type": "Entrance",
+            "latitude": 13.033139424856664,
+            "longitude": 80.17888232637708,
+            "id": 103
+        },
+        {
+            "name": "POF1",
+            "node_type": "Entrance",
+            "latitude": 13.03291446065788,
+            "longitude": 80.1794077274794,
+            "id": 110
+        },
+        {
+            "name": "B3E1",
+            "node_type": "Entrance",
+            "latitude": 13.03285356808873,
+            "longitude": 80.17967821414771,
+            "id": 111
+        },
+        {
+            "name": "Mainroad1",
+            "node_type": "Custom",
+            "latitude": 13.031658259650174,
+            "longitude": 80.179660320282,
+            "id": 90000
+        },
+        {
+            "name": "Mech Parking Center",
+            "node_type": "Custom",
+            "latitude": 13.032009869636699,
+            "longitude": 80.17879562407094,
+            "id": 90002
+        },
+        {
+            "name": "OAT Center",
+            "node_type": "Custom",
+            "latitude": 13.03254534835465,
+            "longitude": 80.17878396780226,
+            "id": 90004
+        },
+        {
+            "id": 90001
+        },
+        {
+            "id": 90003
+        }
+    ],
+    "edges": [
+        {
+            "distance": 10.582506856129072,
+            "thickness": 3.0,
+            "weight": 3.5275022853763573,
+            "source": 1,
+            "target": 3
+        },
+        {
+            "distance": 19.793108238290845,
+            "thickness": 3.0,
+            "weight": 6.597702746096949,
+            "source": 1,
+            "target": 90000
+        },
+        {
+            "distance": 98.71854312434836,
+            "thickness": 1.0,
+            "weight": 98.71854312434836,
+            "source": 1,
+            "target": 90002
+        },
+        {
+            "distance": 65.51264240116879,
+            "thickness": 3.0,
+            "weight": 21.837547467056265,
+            "source": 2,
+            "target": 3
+        },
+        {
+            "distance": 110.87397120707224,
+            "thickness": 3.0,
+            "weight": 36.95799040235742,
+            "source": 2,
+            "target": 81
+        },
+        {
+            "distance": 28.829813692251555,
+            "thickness": 3.0,
+            "weight": 9.609937897417185,
+            "source": 2,
+            "target": 5
+        },
+        {
+            "distance": 12.788914089964893,
+            "thickness": 3.0,
+            "weight": 4.262971363321631,
+            "source": 2,
+            "target": 4
+        },
+        {
+            "distance": 29.45436042985755,
+            "thickness": 1.0,
+            "weight": 29.45436042985755,
+            "source": 2,
+            "target": 90002
+        },
+        {
+            "distance": 89.11135778499455,
+            "thickness": 3.0,
+            "weight": 29.703785928331516,
+            "source": 3,
+            "target": 21
+        },
+        {
+            "distance": 96.45661718950798,
+            "thickness": 1.0,
+            "weight": 96.45661718950798,
+            "source": 3,
+            "target": 90002
+        },
+        {
+            "distance": 85.85966620909846,
+            "thickness": 3.0,
+            "weight": 28.619888736366153,
+            "source": 4,
+            "target": 25
+        },
+        {
+            "distance": 41.410257418343775,
+            "thickness": 3.0,
+            "weight": 13.803419139447925,
+            "source": 5,
+            "target": 50
+        },
+        {
+            "distance": 7.741588649409691,
+            "thickness": 3.0,
+            "weight": 2.5805295498032303,
+            "source": 5,
+            "target": 30
+        },
+        {
+            "distance": 49.13736865006502,
+            "thickness": 1.0,
+            "weight": 49.13736865006502,
+            "source": 5,
+            "target": 90004
+        },
+        {
+            "distance": 36.40204229642077,
+            "thickness": 3.0,
+            "weight": 12.134014098806922,
+            "source": 7,
+            "target": 31
+        },
+        {
+            "distance": 53.41689921657223,
+            "thickness": 3.0,
+            "weight": 17.805633072190744,
+            "source": 7,
+            "target": 21
+        },
+        {
+            "distance": 34.644177707611526,
+            "thickness": 3.0,
+            "weight": 11.54805923587051,
+            "source": 7,
+            "target": 8
+        },
+        {
+            "distance": 52.39723635555081,
+            "thickness": 1.0,
+            "weight": 52.39723635555081,
+            "source": 7,
+            "target": 90004
+        },
+        {
+            "distance": 15.802687965324406,
+            "thickness": 3.0,
+            "weight": 5.267562655108136,
+            "source": 8,
+            "target": 70
+        },
+        {
+            "distance": 23.730178985494376,
+            "thickness": 3.0,
+            "weight": 7.9100596618314585,
+            "source": 8,
+            "target": 11
+        },
+        {
+            "distance": 38.436144378452106,
+            "thickness": 1.0,
+            "weight": 38.436144378452106,
+            "source": 8,
+            "target": 90004
+        },
+        {
+            "distance": 34.856638224919536,
+            "thickness": 3.0,
+            "weight": 11.618879408306512,
+            "source": 9,
+            "target": 14
+        },
+        {
+            "distance": 27.664604041956128,
+            "thickness": 3.0,
+            "weight": 9.221534680652043,
+            "source": 9,
+            "target": 10
+        },
+        {
+            "distance": 7.282227394838718,
+            "thickness": 3.0,
+            "weight": 2.427409131612906,
+            "source": 9,
+            "target": 13
+        },
+        {
+            "distance": 44.150293518773516,
+            "thickness": 1.0,
+            "weight": 44.150293518773516,
+            "source": 9,
+            "target": 90004
+        },
+        {
+            "distance": 38.57652302101632,
+            "thickness": 3.0,
+            "weight": 12.85884100700544,
+            "source": 10,
+            "target": 12
+        },
+        {
+            "distance": 61.01333669483245,
+            "thickness": 3.0,
+            "weight": 20.33777889827748,
+            "source": 10,
+            "target": 103
+        },
+        {
+            "distance": 31.922414518089887,
+            "thickness": 3.0,
+            "weight": 10.640804839363296,
+            "source": 10,
+            "target": 13
+        },
+        {
+            "distance": 37.050054296943436,
+            "thickness": 3.0,
+            "weight": 12.350018098981145,
+            "source": 11,
+            "target": 12
+        },
+        {
+            "distance": 16.54894591375769,
+            "thickness": 3.0,
+            "weight": 5.5163153045858975,
+            "source": 11,
+            "target": 100
+        },
+        {
+            "distance": 41.294977832410524,
+            "thickness": 1.0,
+            "weight": 41.294977832410524,
+            "source": 11,
+            "target": 90004
+        },
+        {
+            "distance": 69.49120638558034,
+            "thickness": 3.0,
+            "weight": 23.163735461860114,
+            "source": 12,
+            "target": 80
+        },
+        {
+            "distance": 24.156979765435185,
+            "thickness": 3.0,
+            "weight": 8.052326588478396,
+            "source": 12,
+            "target": 94
+        },
+        {
+            "distance": 52.7164900789529,
+            "thickness": 1.0,
+            "weight": 52.7164900789529,
+            "source": 12,
+            "target": 90004
+        },
+        {
+            "distance": 15.422360346882284,
+            "thickness": 3.0,
+            "weight": 5.140786782294095,
+            "source": 13,
+            "target": 103
+        },
+        {
+            "distance": 25.84144465090425,
+            "thickness": 3.0,
+            "weight": 8.61381488363475,
+            "source": 14,
+            "target": 20
+        },
+        {
+            "distance": 27.321452134216532,
+            "thickness": 3.0,
+            "weight": 9.107150711405511,
+            "source": 20,
+            "target": 22
+        },
+        {
+            "distance": 5.951064188203162,
+            "thickness": 3.0,
+            "weight": 1.9836880627343874,
+            "source": 20,
+            "target": 110
+        },
+        {
+            "distance": 7.125343072537722,
+            "thickness": 3.0,
+            "weight": 2.3751143575125737,
+            "source": 21,
+            "target": 22
+        },
+        {
+            "distance": 16.480908239444,
+            "thickness": 3.0,
+            "weight": 5.493636079814666,
+            "source": 21,
+            "target": 25
+        },
+        {
+            "distance": 4.925026868002526,
+            "thickness": 3.0,
+            "weight": 1.6416756226675087,
+            "source": 22,
+            "target": 23
+        },
+        {
+            "distance": 5.297136171176556,
+            "thickness": 3.0,
+            "weight": 1.7657120570588518,
+            "source": 23,
+            "target": 24
+        },
+        {
+            "distance": 6.442554288685841,
+            "thickness": 3.0,
+            "weight": 2.147518096228614,
+            "source": 23,
+            "target": 111
+        },
+        {
+            "distance": 6.199522134430009,
+            "thickness": 3.0,
+            "weight": 2.0665073781433363,
+            "source": 24,
+            "target": 26
+        },
+        {
+            "distance": 54.514292468800086,
+            "thickness": 3.0,
+            "weight": 18.171430822933363,
+            "source": 24,
+            "target": 33
+        },
+        {
+            "distance": 8.541252035199234,
+            "thickness": 3.0,
+            "weight": 2.847084011733078,
+            "source": 26,
+            "target": 25
+        },
+        {
+            "distance": 75.56776885247571,
+            "thickness": 3.0,
+            "weight": 25.18925628415857,
+            "source": 26,
+            "target": 36
+        },
+        {
+            "distance": 10.474487425185139,
+            "thickness": 3.0,
+            "weight": 3.491495808395046,
+            "source": 30,
+            "target": 52
+        },
+        {
+            "distance": 19.36203593747563,
+            "thickness": 3.0,
+            "weight": 6.454011979158543,
+            "source": 30,
+            "target": 31
+        },
+        {
+            "distance": 42.929606563923286,
+            "thickness": 1.0,
+            "weight": 42.929606563923286,
+            "source": 30,
+            "target": 90004
+        },
+        {
+            "distance": 11.011855094404613,
+            "thickness": 3.0,
+            "weight": 3.6706183648015376,
+            "source": 31,
+            "target": 55
+        },
+        {
+            "distance": 37.617868158917375,
+            "thickness": 1.0,
+            "weight": 37.617868158917375,
+            "source": 31,
+            "target": 90004
+        },
+        {
+            "distance": 10.764595038117461,
+            "thickness": 3.0,
+            "weight": 3.5881983460391536,
+            "source": 33,
+            "target": 44
+        },
+        {
+            "distance": 82.96583324047003,
+            "thickness": 3.0,
+            "weight": 27.655277746823344,
+            "source": 33,
+            "target": 35
+        },
+        {
+            "distance": 24.96615819944105,
+            "thickness": 3.0,
+            "weight": 8.322052733147016,
+            "source": 35,
+            "target": 41
+        },
+        {
+            "distance": 47.58373165476337,
+            "thickness": 3.0,
+            "weight": 15.861243884921123,
+            "source": 35,
+            "target": 38
+        },
+        {
+            "distance": 7.487481087902385,
+            "thickness": 3.0,
+            "weight": 2.495827029300795,
+            "source": 36,
+            "target": 38
+        },
+        {
+            "distance": 114.77538007884512,
+            "thickness": 3.0,
+            "weight": 38.2584600262817,
+            "source": 38,
+            "target": 40
+        },
+        {
+            "distance": 93.04667226619559,
+            "thickness": 3.0,
+            "weight": 31.015557422065196,
+            "source": 40,
+            "target": 90000
+        },
+        {
+            "distance": 33.299259231805664,
+            "thickness": 1.0,
+            "weight": 33.299259231805664,
+            "source": 52,
+            "target": 90004
+        },
+        {
+            "distance": 26.33558955136228,
+            "thickness": 1.0,
+            "weight": 26.33558955136228,
+            "source": 55,
+            "target": 90004
+        },
+        {
+            "distance": 22.756631952090256,
+            "thickness": 1.0,
+            "weight": 22.756631952090256,
+            "source": 70,
+            "target": 90004
+        },
+        {
+            "distance": 84.4036798387043,
+            "thickness": 1.0,
+            "weight": 84.4036798387043,
+            "source": 81,
+            "target": 90002
+        },
+        {
+            "distance": 23.65499374483314,
+            "thickness": 1.0,
+            "weight": 23.65499374483314,
+            "source": 82,
+            "target": 90004
+        },
+        {
+            "distance": 30.124834601897916,
+            "thickness": 1.0,
+            "weight": 30.124834601897916,
+            "source": 84,
+            "target": 90004
+        },
+        {
+            "distance": 20.894011868392514,
+            "thickness": 1.0,
+            "weight": 20.894011868392514,
+            "source": 91,
+            "target": 90004
+        },
+        {
+            "distance": 31.24642278022326,
+            "thickness": 1.0,
+            "weight": 31.24642278022326,
+            "source": 94,
+            "target": 90004
+        },
+        {
+            "distance": 21.202784128476285,
+            "thickness": 3.0,
+            "weight": 7.067594709492095,
+            "source": 100,
+            "target": 101
+        },
+        {
+            "distance": 0.0,
+            "thickness": 1.0,
+            "weight": 0.0,
+            "source": 90004,
+            "target": 90001
+        },
+        {
+            "distance": 44.798360968174066,
+            "thickness": 1.0,
+            "weight": 44.798360968174066,
+            "source": 90004,
+            "target": 90003
+        }
+    ]
+}
