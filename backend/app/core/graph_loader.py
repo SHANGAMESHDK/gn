@@ -11,11 +11,10 @@ class GraphManager:
 
     def __init__(self):
 
-        self.base_dir = Path(__file__).resolve().parents[3]
+        self.base_dir = Path(__file__).resolve().parents[2]
 
         self.graph_path = (
             self.base_dir
-            / "backend"
             / "app"
             / "data"
             / "graph.json"

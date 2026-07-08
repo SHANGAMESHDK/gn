@@ -12,8 +12,8 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 
 GPKG = BASE_DIR / "gis" / "Campus.gpkg"
 
-GRAPH_JSON = BASE_DIR / "backend" / "app" / "data" / "graph.json"
-CUSTOM_GRAPH_JSON = BASE_DIR / "backend" / "app" / "data" / "custom_graph.json"
+GRAPH_JSON = BASE_DIR / "app" / "data" / "graph.json"
+CUSTOM_GRAPH_JSON = BASE_DIR / "app" / "data" / "custom_graph.json"
 
 # =====================================================
 # Read Layers

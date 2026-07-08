@@ -17,9 +17,9 @@ stall_router = APIRouter(
 # Load Stall Data
 # =====================================================
 
-BASE_DIR = Path(__file__).resolve().parents[3]
+BASE_DIR = Path(__file__).resolve().parents[2]
 
-STALL_FILE = BASE_DIR / "backend" / "app" / "data" / "stalls.json"
+STALL_FILE = BASE_DIR / "app" / "data" / "stalls.json"
 
 
 def load_stalls():

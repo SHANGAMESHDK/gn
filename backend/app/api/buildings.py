@@ -36,7 +36,7 @@ def get_buildings():
 # =====================================================
 # =====================================================
 
-CUSTOM_BUILDINGS_JSON = Path(__file__).resolve().parents[3] / "backend" / "app" / "data" / "custom_buildings.json"
+CUSTOM_BUILDINGS_JSON = Path(__file__).resolve().parents[2] / "app" / "data" / "custom_buildings.json"
 
 def get_building_overrides():
     if CUSTOM_BUILDINGS_JSON.exists():
