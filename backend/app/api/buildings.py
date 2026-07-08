@@ -82,7 +82,7 @@ def custom_building_override(override: dict):
 # =====================================================
 
 def _generate_building_mesh(building_id: str, area_name: str):
-    GPKG = Path(__file__).resolve().parents[3] / "gis" / "Campus.gpkg"
+    GPKG = Path(__file__).resolve().parents[2] / "gis" / "Campus.gpkg"
     try:
         buildings = gpd.read_file(GPKG, layer="Building")
         bldg = buildings[buildings["id"] == building_id]
@@ -169,7 +169,7 @@ def force_2d(geom):
 
 @router.get("/geojson")
 def get_buildings_geojson():
-    GPKG = Path(__file__).resolve().parents[3] / "gis" / "Campus.gpkg"
+    GPKG = Path(__file__).resolve().parents[2] / "gis" / "Campus.gpkg"
     overrides = get_building_overrides()
     try:
         gdf = gpd.read_file(GPKG, layer="Building")

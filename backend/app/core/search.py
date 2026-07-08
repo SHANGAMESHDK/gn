@@ -17,7 +17,7 @@ class SearchService:
     """
 
     def __init__(self):
-        base_dir = Path(__file__).resolve().parents[3]
+        base_dir = Path(__file__).resolve().parents[2]
         gpkg = base_dir / "gis" / "Campus.gpkg"
         
         # Load once

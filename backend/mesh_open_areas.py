@@ -7,7 +7,7 @@ from app.core.graph_loader import graph_manager
 
 # 1. Load Data
 G = graph_manager.get_graph()
-buildings = gpd.read_file('c:/Users/dksss/Campus/campus-navigator/gis/Campus.gpkg', layer='Building')
+buildings = gpd.read_file(Path(__file__).parent / 'gis' / 'Campus.gpkg', layer='Building')
 
 with open(CUSTOM_GRAPH_JSON, 'r') as f:
     custom_data = json.load(f)

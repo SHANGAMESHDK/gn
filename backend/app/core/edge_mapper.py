@@ -13,7 +13,7 @@ MAX_NODE_DISTANCE = 2.0  # meters
 # Project Paths
 # =====================================================
 
-BASE_DIR = Path(__file__).resolve().parents[3]
+BASE_DIR = Path(__file__).resolve().parents[2]
 GPKG = BASE_DIR / "gis" / "Campus.gpkg"
 
 # =====================================================

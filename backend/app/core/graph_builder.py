@@ -8,7 +8,7 @@ import networkx as nx
 # Project Paths
 # =====================================================
 
-BASE_DIR = Path(__file__).resolve().parents[3]
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 GPKG = BASE_DIR / "gis" / "Campus.gpkg"
 

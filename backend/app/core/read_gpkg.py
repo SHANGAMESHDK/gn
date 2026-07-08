@@ -1,7 +1,7 @@
 from pathlib import Path
 import geopandas as gpd
 
-BASE_DIR = Path(__file__).resolve().parents[3]
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 gpkg = BASE_DIR / "gis" / "Campus.gpkg"
 
