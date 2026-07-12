@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { baseURL } from '../../api/axios';
+import { apiClient } from '../../api/axios';
 import Map, { Source, Layer, Marker } from 'react-map-gl/maplibre';
 import type { MapRef } from 'react-map-gl/maplibre';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -25,6 +25,7 @@ export function CampusMap() {
   const [followMe, setFollowMe] = useState(sourceNodeId === 'gps');
   const [routeData, setRouteData] = useState<any>(null);
   const [routeCoords, setRouteCoords] = useState<[number, number][]>([]); // [lng, lat]
+  const [buildingsGeoJSON, setBuildingsGeoJSON] = useState<any>(null);
 
   const { currentInstruction, cameraBearing } = useNavigationDirections(gps.latitude, gps.longitude, routeData);
 
@@ -96,6 +97,19 @@ export function CampusMap() {
     fetchRoute();
   }, [destinationNodeId, sourceNodeId, gps.latitude, gps.longitude]);
 
+  // Fetch Buildings GeoJSON
+  useEffect(() => {
+    async function fetchBuildings() {
+      try {
+        const res = await apiClient.get('/buildings/geojson');
+        setBuildingsGeoJSON(res.data);
+      } catch (err) {
+        console.error("Failed to load buildings 3D data", err);
+      }
+    }
+    fetchBuildings();
+  }, []);
+
   const routeGeoJSON = useMemo(() => ({
     type: 'FeatureCollection',
     features: [{
@@ -149,9 +163,10 @@ export function CampusMap() {
           maxPitch={85}
           maxZoom={26}
         >
-          {/* 3D Buildings Layer pulled from Python API */}
-          <Source id="buildings" type="geojson" data={`${baseURL}/buildings/geojson`}>
-            <Layer
+          {/* 3D Buildings Layer pulled from Python API via Axios */}
+          {buildingsGeoJSON && (
+            <Source id="buildings" type="geojson" data={buildingsGeoJSON}>
+              <Layer
               id="3d-buildings"
               type="fill-extrusion"
               paint={{
@@ -175,8 +190,9 @@ export function CampusMap() {
                 'text-halo-color': '#ffffff',
                 'text-halo-width': 2
               }}
-            />
-          </Source>
+              />
+            </Source>
+          )}
 
           {/* Route Polyline Layer */}
           {routeCoords.length > 0 && (
