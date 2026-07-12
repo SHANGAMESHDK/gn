@@ -20,6 +20,7 @@ class LocationPing(BaseModel):
 class ShareRequest(BaseModel):
     name: str
     reg_no: str
+    admin_code: str
 
 FRIEND_SESSIONS_JSON = Path(__file__).resolve().parents[2] / "app" / "data" / "friend_sessions.json"
 
@@ -84,6 +85,12 @@ def get_heatmap():
 
 @router.post("/share")
 def share_location(req: ShareRequest):
+    # Validate admin code
+    from app.api.admin import load_settings
+    settings = load_settings()
+    if req.admin_code != settings.get("friendsync_security_code"):
+        raise HTTPException(status_code=403, detail="Invalid security code. Please check with an administrator.")
+
     data = get_friend_sessions()
     
     # Generate 6-char alphanumeric code

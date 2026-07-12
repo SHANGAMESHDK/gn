@@ -60,5 +60,13 @@ export const AdminAPI = {
   getEdgeInfo: async (source: number, destination: number) => {
     const response = await apiClient.get(`/admin/edge/${source}/${destination}`);
     return response.data;
+  },
+  getSettings: async () => {
+    const response = await apiClient.get('/admin/settings');
+    return response.data;
+  },
+  updateSettings: async (settings: any) => {
+    const response = await apiClient.post('/admin/settings', settings);
+    return response.data;
   }
 };

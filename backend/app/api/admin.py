@@ -12,6 +12,40 @@ router = APIRouter(
 
 
 # ==========================================================
+# Settings Management
+# ==========================================================
+
+SETTINGS_JSON = Path(__file__).resolve().parents[1] / "data" / "settings.json"
+
+def load_settings():
+    if not SETTINGS_JSON.exists():
+        default_settings = {"friendsync_security_code": "ADMIN123"}
+        save_settings(default_settings)
+        return default_settings
+    with open(SETTINGS_JSON, "r") as f:
+        try:
+            return json.load(f)
+        except:
+            return {"friendsync_security_code": "ADMIN123"}
+
+def save_settings(data):
+    SETTINGS_JSON.parent.mkdir(parents=True, exist_ok=True)
+    with open(SETTINGS_JSON, "w") as f:
+        json.dump(data, f, indent=4)
+
+@router.get("/settings")
+def get_settings():
+    return load_settings()
+
+@router.post("/settings")
+def update_settings(settings: dict):
+    data = load_settings()
+    data.update(settings)
+    save_settings(data)
+    return {"message": "Settings updated", "settings": data}
+
+
+# ==========================================================
 # System Status
 # ==========================================================
 

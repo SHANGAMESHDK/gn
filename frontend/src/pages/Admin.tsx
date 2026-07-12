@@ -20,6 +20,9 @@ export function Admin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  
+  const [securityCodeInput, setSecurityCodeInput] = useState('');
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,14 +37,16 @@ export function Admin() {
   async function loadData() {
     setLoading(true);
     try {
-      const [statsData, stallsData, buildingsData] = await Promise.all([
+      const [statsData, stallsData, buildingsData, settingsData] = await Promise.all([
         AdminAPI.getStatus(),
         StallsAPI.getAllStalls(),
-        BuildingsAPI.getAllBuildings()
+        BuildingsAPI.getAllBuildings(),
+        AdminAPI.getSettings()
       ]);
       setStats(statsData);
       setStalls(stallsData.stalls || []);
       setBuildings(buildingsData.buildings || []);
+      setSecurityCodeInput(settingsData?.friendsync_security_code || '');
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch admin data from backend.');
@@ -65,6 +70,19 @@ export function Admin() {
       alert("Failed to reload graph: " + err.message);
     } finally {
       setReloading(false);
+    }
+  }
+
+  async function handleSaveSettings() {
+    setSavingSettings(true);
+    try {
+      await AdminAPI.updateSettings({ friendsync_security_code: securityCodeInput });
+      alert("Settings saved successfully!");
+      await loadData();
+    } catch (err: any) {
+      alert("Failed to save settings: " + err.message);
+    } finally {
+      setSavingSettings(false);
     }
   }
 
@@ -196,7 +214,36 @@ export function Admin() {
       )}
       
       {stats && (
-        <div className="mb-10">
+        <div className="mb-10 space-y-6">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400">
+                <ShieldCheck size={24} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-white">Friend Sync Security Code</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">This code is required for users to generate a new sharing session.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <input 
+                type="text" 
+                value={securityCodeInput}
+                onChange={e => setSecurityCodeInput(e.target.value)}
+                placeholder="Security Code"
+                className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono font-bold uppercase"
+              />
+              <button 
+                onClick={handleSaveSettings}
+                disabled={savingSettings}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm rounded-lg transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
+              >
+                {savingSettings ? <RefreshCw size={16} className="animate-spin" /> : <Lock size={16} />}
+                Save
+              </button>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-slate-800 dark:text-white">System Controls & Status</h2>
             <div className="flex items-center gap-3">
