@@ -49,7 +49,7 @@ export function CampusAR() {
 
   return (
     <div style={{ margin: 0, overflow: 'hidden', height: '100vh', width: '100vw', position: 'relative', backgroundColor: '#000' }}>
-      
+
       {/* UI Overlay */}
       <div className="absolute top-0 left-0 w-full z-50 p-4 pointer-events-none flex justify-between items-start">
         {/* Back button */}
@@ -64,15 +64,14 @@ export function CampusAR() {
 
         {/* Status Panel */}
         <div className="flex flex-col items-end gap-2 pointer-events-auto">
-          <button 
+          <button
             onClick={() => setSimulationMode(!simulationMode)}
-            className={`px-4 py-2 rounded-full font-bold shadow-lg text-sm transition-colors ${
-              simulationMode ? 'bg-amber-500 text-white' : 'bg-slate-800/80 text-slate-200'
-            }`}
+            className={`px-4 py-2 rounded-full font-bold shadow-lg text-sm transition-colors ${simulationMode ? 'bg-amber-500 text-white' : 'bg-slate-800/80 text-slate-200'
+              }`}
           >
-            {simulationMode ? 'Simulation Active' : 'Test on Desktop'}
+            {simulationMode ? 'Simulation Active' : 'On Simulation'}
           </button>
-          
+
           <div className="bg-slate-800/80 backdrop-blur text-white px-4 py-2 rounded-2xl text-xs font-medium shadow-lg max-w-[200px] text-right border border-slate-600/50">
             {error && !simulationMode ? (
               <span className="text-red-400">GPS Error: {error}</span>
@@ -116,7 +115,7 @@ export function CampusAR() {
               <a-sphere radius="1" color={color} position="0 6 0" opacity="0.9"></a-sphere>
               {/* Pin Point */}
               <a-cone radius-bottom="0" radius-top="1" height="2" color={color} position="0 4.5 0" opacity="0.9"></a-cone>
-              
+
               {/* Name Label */}
               <a-text
                 value={poi.name}
@@ -125,7 +124,7 @@ export function CampusAR() {
                 scale="3 3 3"
                 position="0 8 0"
               ></a-text>
-              
+
               {/* Distance Label */}
               <a-text
                 value={`${Math.round(poi.distance)}m`}
@@ -139,7 +138,7 @@ export function CampusAR() {
         })}
 
         {/* GPS Camera for Location-Based AR */}
-        <a-camera 
+        <a-camera
           gps-camera={simulationMode ? `simulateLatitude: ${SIMULATED_LAT}; simulateLongitude: ${SIMULATED_LNG}` : ""}
           rotation-reader
         ></a-camera>
