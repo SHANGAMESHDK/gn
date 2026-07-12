@@ -23,6 +23,7 @@ export function CampusMap() {
   const destinationNodeIdParam = searchParams.get('destination_node_id') || searchParams.get('node_id');
   const destLat = searchParams.get('destination_lat');
   const destLng = searchParams.get('destination_lng');
+  const trackCode = searchParams.get('track');
   const sourceNodeId = searchParams.get('source_node_id');
 
   // Center is [lng, lat] in MapLibre
@@ -41,11 +42,74 @@ export function CampusMap() {
   const { currentInstruction, cameraBearing } = useNavigationDirections(gps.latitude, gps.longitude, routeData);
   const weather = useLiveWeather(initialCenter[1], initialCenter[0]);
   
-  useTelemetry(true);
+  useTelemetry(false); // GlobalBroadcast handles this now
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<any>(null);
   
-  // Active Friends logic moved to FriendSync.tsx
+  // FriendSync states
+  const [showFriends, setShowFriends] = useState(false);
+  const [activeFriends, setActiveFriends] = useState<any[]>([]);
+  const [trackedFriend, setTrackedFriend] = useState<any>(null);
+  
+  // Poll for Active Friends if toggle is ON
+  useEffect(() => {
+    if (!showFriends) {
+      setActiveFriends([]);
+      return;
+    }
+    const fetchFriends = async () => {
+      try {
+        const res = await apiClient.get('/telemetry/active_friends');
+        setActiveFriends(res.data.friends || []);
+      } catch (e) {
+        console.warn("Failed to fetch active friends", e);
+      }
+    };
+    fetchFriends();
+    const interval = setInterval(fetchFriends, 5000);
+    return () => clearInterval(interval);
+  }, [showFriends]);
+
+  // Poll for specific Tracked friend if trackCode is set
+  useEffect(() => {
+    if (!trackCode) return;
+    
+    // Automatically stop following GPS and start following friend
+    setFollowMe(false);
+
+    const fetchTracked = async () => {
+      try {
+        const res = await apiClient.get(`/telemetry/friend/${trackCode}`);
+        setTrackedFriend((prev: any) => {
+          let bearing = prev ? prev.bearing : 0;
+          if (prev && (Math.abs(res.data.lat - prev.lat) > 0.000001 || Math.abs(res.data.lng - prev.lng) > 0.000001)) {
+            bearing = Math.atan2(res.data.lng - prev.lng, res.data.lat - prev.lat) * (180 / Math.PI);
+          }
+          return { ...res.data, code: trackCode, bearing };
+        });
+      } catch (e) {
+        console.warn("Failed to fetch tracked friend", e);
+      }
+    };
+    fetchTracked();
+    const interval = setInterval(fetchTracked, 5000);
+    return () => clearInterval(interval);
+  }, [trackCode]);
+
+  // Follow tracked friend camera
+  useEffect(() => {
+    if (trackedFriend && mapRef.current) {
+      const map = mapRef.current.getMap();
+      map.easeTo({
+        center: [trackedFriend.lng, trackedFriend.lat],
+        zoom: 19,
+        pitch: 60,
+        bearing: trackedFriend.bearing || 0,
+        duration: 1500,
+        easing: (t) => t
+      });
+    }
+  }, [trackedFriend]);
 
   useEffect(() => {
     if (!showHeatmap) return;
@@ -399,6 +463,52 @@ export function CampusMap() {
             </Marker>
           )}
 
+          {/* Tracked Friend Marker */}
+          {trackedFriend && (
+            <Marker
+              longitude={trackedFriend.lng}
+              latitude={trackedFriend.lat}
+              anchor="center"
+              rotationAlignment="map"
+              rotation={trackedFriend.bearing || 0}
+            >
+              <div className="relative group">
+                <div className="w-16 h-16 rounded-full border-4 border-white shadow-[0_0_20px_rgba(59,130,246,0.6)] overflow-hidden transition-transform transform hover:scale-110">
+                  <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt={trackedFriend.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white px-3 py-1 rounded-lg text-sm font-bold whitespace-nowrap shadow-lg border border-slate-700/50"
+                  style={{ transform: `translateX(-50%) rotate(${-(trackedFriend.bearing || 0)}deg)` }}
+                >
+                  {trackedFriend.name}
+                </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-blue-500/20 border-2 border-blue-500/30 rounded-full scale-y-50 -z-10 blur-[2px]"></div>
+              </div>
+            </Marker>
+          )}
+
+          {/* Active Friends Markers */}
+          {showFriends && activeFriends.map(friend => (
+            <Marker
+              key={friend.code}
+              longitude={friend.lng}
+              latitude={friend.lat}
+              anchor="center"
+              rotationAlignment="map"
+            >
+              <div 
+                className="relative group hover:z-50 cursor-pointer"
+                onClick={() => navigate(`/map?track=${friend.code}`)}
+              >
+                <div className="w-12 h-12 rounded-full border-2 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] overflow-hidden bg-slate-800 flex items-center justify-center transition-transform transform group-hover:scale-110">
+                  <span className="text-emerald-400 font-bold text-lg">{friend.name.charAt(0).toUpperCase()}</span>
+                </div>
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap shadow-lg border border-slate-700/50">
+                  {friend.name}
+                </div>
+              </div>
+            </Marker>
+          ))}
+
 
         </Map>
       </div>
@@ -446,11 +556,22 @@ export function CampusMap() {
       <button
         onClick={() => setShowHeatmap(!showHeatmap)}
         className={`absolute top-36 right-4 z-[1000] p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
-          showHeatmap ? 'bg-red-500 text-white shadow-red-500/50 hover:bg-red-600' : 'bg-white text-slate-700 hover:bg-slate-50'
+          showHeatmap ? 'bg-orange-500 text-white shadow-orange-500/50 hover:bg-orange-600' : 'bg-white text-slate-700 hover:bg-slate-50'
         }`}
         title="Toggle Live Activity Heatmap"
       >
         <Activity size={24} />
+      </button>
+      
+      {/* FriendSync Toggle Button */}
+      <button
+        onClick={() => setShowFriends(!showFriends)}
+        className={`absolute top-48 right-4 z-[1000] p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
+          showFriends ? 'bg-emerald-500 text-white shadow-emerald-500/50 hover:bg-emerald-600' : 'bg-white text-slate-700 hover:bg-slate-50'
+        }`}
+        title="Show Active Friends"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </button>
     </div>
   );

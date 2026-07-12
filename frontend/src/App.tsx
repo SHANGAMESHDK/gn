@@ -12,6 +12,7 @@ import { FriendSync } from './pages/FriendSync';
 
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
+import { GlobalBroadcast } from './components/telemetry/GlobalBroadcast';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         </div>
 
         <div className="flex flex-col flex-1 w-full relative">
+          <GlobalBroadcast />
 
           <main className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0">
             <Routes>
