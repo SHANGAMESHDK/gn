@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StallsAPI } from '../api';
-import { Store, Map, ArrowRight, Coffee, Book, Pizza, ShoppingBag } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Store, ArrowRight, Coffee, Book, Pizza, ShoppingBag } from 'lucide-react';
 import { DetailModal } from '../components/common/DetailModal';
 
 export function Stalls() {
@@ -9,7 +8,6 @@ export function Stalls() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
   const [selectedStall, setSelectedStall] = useState<any>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function load() {

@@ -1,4 +1,4 @@
-import { Map as MapIcon, Glasses, Home, Settings, Building, Store } from 'lucide-react';
+import { Map as MapIcon, Home, Settings, Building, Store } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export function Navbar() {

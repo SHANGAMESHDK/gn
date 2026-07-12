@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { generateTurnByTurnDirections } from '../../utils/navigationUtils';
 import { ArrowUp, CornerUpLeft, CornerUpRight, MapPin, Navigation, ChevronUp, ChevronDown } from 'lucide-react';
-import type { TurnInstruction } from '../../hooks/useNavigationDirections';
 
 interface RouteDirectionsListProps {
   routeData: any;

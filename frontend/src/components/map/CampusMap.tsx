@@ -140,15 +140,10 @@ export function CampusMap() {
       <DetailModal
         isOpen={!!selectedLocation}
         onClose={() => setSelectedLocation(null)}
-        onNavigate={() => {
-          if (selectedLocation?.node_id) {
-            navigate(`/map?destination_node_id=${selectedLocation.node_id}&destination=${encodeURIComponent(selectedLocation.Name || 'Destination')}`);
-          }
-        }}
         title={selectedLocation?.Name || 'Building'}
         description={selectedLocation?.description}
         coverPhoto={selectedLocation?.cover_photo}
-        type={selectedLocation?.type || 'building'}
+        destinationNodeId={selectedLocation?.node_id}
       />
 
       {sourceNodeId === 'gps' && routeData ? (

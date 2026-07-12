@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { BuildingsAPI } from '../api';
-import { Building, Map, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Building, ArrowRight } from 'lucide-react';
 import { DetailModal } from '../components/common/DetailModal';
 
 export function Buildings() {
   const [buildings, setBuildings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBuilding, setSelectedBuilding] = useState<any>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function load() {
