@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Map, Glasses, Compass, Navigation } from 'lucide-react';
+import { Map, Glasses, Compass, Navigation, Users } from 'lucide-react';
 
 export function Home() {
   const navigate = useNavigate();
@@ -43,6 +43,17 @@ export function Home() {
             <div className="absolute inset-0 bg-blue-50 dark:bg-blue-900/20 opacity-0 group-hover:opacity-100 transition-opacity" />
             <Glasses size={24} className="relative z-10 text-blue-500" />
             <span className="relative z-10">Launch AR Mode</span>
+          </button>
+        </div>
+
+        <div className="w-full flex flex-col md:flex-row gap-4 mt-4">
+          <button
+            onClick={() => navigate('/friendsync')}
+            className="flex-1 group relative overflow-hidden bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-700 px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] hover:border-indigo-500 dark:hover:border-indigo-500 transition-all shadow-lg shadow-slate-200/50 dark:shadow-none"
+          >
+            <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Users size={24} className="relative z-10 text-indigo-500" />
+            <span className="relative z-10">Friend Sync</span>
           </button>
         </div>
       </div>

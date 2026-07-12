@@ -11,6 +11,7 @@ from app.api.buildings import router as buildings_router
 from app.api.stalls import stall_router
 from app.api.admin import router as admin_router
 from app.api.ar import router as ar_router
+from app.api.telemetry import router as telemetry_router
 
 
 # ==========================================================
@@ -71,6 +72,7 @@ app.include_router(buildings_router)
 app.include_router(stall_router)
 app.include_router(admin_router)
 app.include_router(ar_router)
+app.include_router(telemetry_router)
 
 
 # ==========================================================

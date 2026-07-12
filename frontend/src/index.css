@@ -15,3 +15,35 @@ html, body, #root {
     background-color: #0f172a;
   }
 }
+
+/* Cinematic Rain Effect */
+.rain-container {
+  background: linear-gradient(to bottom, rgba(15,23,42,0) 0%, rgba(15,23,42,0.2) 100%);
+}
+
+.rain-drop {
+  position: absolute;
+  top: -20px;
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 100%);
+  animation: rain linear infinite;
+  border-radius: 50%;
+}
+
+@keyframes rain {
+  0% {
+    transform: translateY(0) scaleY(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) scaleY(1.5);
+    opacity: 0;
+  }
+}

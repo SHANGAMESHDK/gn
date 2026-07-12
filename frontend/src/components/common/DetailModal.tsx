@@ -51,7 +51,7 @@ export function DetailModal({
   return (
     <div className="fixed inset-0 z-[6000] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
       <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700 relative animate-in zoom-in-95 duration-300">
-        
+
         {/* Cover Photo Area */}
         <div className={`relative h-64 w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center`}>
           {coverPhoto ? (
@@ -61,9 +61,9 @@ export function DetailModal({
               <div className="scale-[5]">{icon}</div>
             </div>
           )}
-          
+
           {/* Close button layered on top of photo */}
-          <button 
+          <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white rounded-full transition-colors z-10"
           >
@@ -96,7 +96,7 @@ export function DetailModal({
             </p>
           </div>
 
-          <button 
+          <button
             onClick={handleNavigate}
             className={`w-full py-4 ${bgClass} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group`}
           >

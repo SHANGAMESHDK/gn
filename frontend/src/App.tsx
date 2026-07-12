@@ -5,8 +5,10 @@ import { Home } from './pages/Home';
 import { Map } from './pages/Map';
 import { Admin } from './pages/Admin';
 import { CampusAR } from './pages/CampusAR';
+import { CampusARHunt } from './pages/CampusARHunt';
 import { Buildings } from './pages/Buildings';
 import { Stalls } from './pages/Stalls';
+import { FriendSync } from './pages/FriendSync';
 
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
@@ -30,6 +32,8 @@ function App() {
               <Route path="/stalls" element={<Stalls />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/ar" element={<CampusAR />} />
+              <Route path="/hunt" element={<CampusARHunt />} />
+              <Route path="/friendsync" element={<FriendSync />} />
             </Routes>
           </main>
 
