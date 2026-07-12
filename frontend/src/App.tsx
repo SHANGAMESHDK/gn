@@ -3,7 +3,7 @@ import './App.css';
 
 import { Home } from './pages/Home';
 import { Map } from './pages/Map';
-
+import { Admin } from './pages/Admin';
 import { CampusAR } from './pages/CampusAR';
 
 import { Navbar } from './components/common/Navbar';
