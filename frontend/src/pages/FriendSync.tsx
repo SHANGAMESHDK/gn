@@ -62,7 +62,7 @@ export function FriendSync() {
   };
 
   // Toggle broadcast
-  const handleToggleBroadcast = () => {
+  const handleToggleBroadcast = async () => {
     if (!isBroadcasting) {
       if (!sharedCode) {
         setShowShareModal(true);
@@ -71,6 +71,11 @@ export function FriendSync() {
       setIsBroadcasting(true);
     } else {
       setIsBroadcasting(false);
+      try {
+        await apiClient.post('/telemetry/stop', { device_id: sharedCode });
+      } catch (err) {
+        console.warn("Failed to send stop broadcast signal", err);
+      }
     }
   };
 
@@ -112,7 +117,29 @@ export function FriendSync() {
     }
   };
 
-  // Poll friend location
+  // Active Friends state
+  const [activeFriends, setActiveFriends] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Only poll for all friends if we are NOT tracking someone specifically
+    if (isTracking) return;
+
+    const fetchFriends = async () => {
+      try {
+        const res = await apiClient.get('/telemetry/active_friends');
+        // Filter out our own device from the map display if desired, or just show it.
+        setActiveFriends((res.data.friends || []).filter((f: any) => f.code !== sharedCode));
+      } catch (e) {
+        console.warn("Failed to fetch active friends", e);
+      }
+    };
+    
+    fetchFriends();
+    const interval = setInterval(fetchFriends, 5000);
+    return () => clearInterval(interval);
+  }, [isTracking, sharedCode]);
+
+  // Poll specific friend location
   useEffect(() => {
     if (!isTracking || !trackedCode) return;
 
@@ -366,6 +393,37 @@ export function FriendSync() {
               </div>
             </Marker>
           )}
+
+          {/* Active Friends Markers (when not tracking a specific friend) */}
+          {!isTracking && activeFriends.map(friend => (
+            <Marker
+              key={friend.code}
+              longitude={friend.lng}
+              latitude={friend.lat}
+              anchor="center"
+              rotationAlignment="map"
+            >
+              <div 
+                className="relative group hover:z-50 cursor-pointer"
+                onClick={() => {
+                  setTrackInput(friend.code);
+                  // We could auto-track here, but populating the code is good enough
+                }}
+              >
+                {/* 3D Avatar Marker */}
+                <div className="w-12 h-12 rounded-full border-2 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] overflow-hidden bg-slate-800 flex items-center justify-center transition-transform transform group-hover:scale-110">
+                  <span className="text-emerald-400 font-bold text-lg">{friend.name.charAt(0).toUpperCase()}</span>
+                </div>
+                
+                {/* Name label */}
+                <div 
+                  className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap shadow-lg border border-slate-700/50"
+                >
+                  {friend.name}
+                </div>
+              </div>
+            </Marker>
+          ))}
         </Map>
       </div>
     </div>

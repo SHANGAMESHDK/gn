@@ -55,6 +55,15 @@ def update_location(ping: LocationPing):
     }
     return {"status": "success"}
 
+class StopPing(BaseModel):
+    device_id: str
+
+@router.post("/stop")
+def stop_location(ping: StopPing):
+    if ping.device_id in active_devices:
+        del active_devices[ping.device_id]
+    return {"status": "success"}
+
 @router.get("/heatmap")
 def get_heatmap():
     current_time = time.time()
