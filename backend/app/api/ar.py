@@ -29,9 +29,9 @@ def get_nearby_pois(lat: float, lng: float, radius: float = 200.0):
     # Add buildings
     buildings = search_service.list_buildings()
     for b in buildings:
-        if "lat" in b and "lng" in b:
-            b_lat = float(b["lat"])
-            b_lng = float(b["lng"])
+        if "latitude" in b and "longitude" in b:
+            b_lat = float(b["latitude"])
+            b_lng = float(b["longitude"])
             dist = haversine_distance(lat, lng, b_lat, b_lng)
             
             if dist <= radius:
