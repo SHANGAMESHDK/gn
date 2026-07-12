@@ -3,7 +3,7 @@ import './App.css';
 
 import { Home } from './pages/Home';
 import { Map } from './pages/Map';
-import { Admin } from './pages/Admin';
+
 import { CampusAR } from './pages/CampusAR';
 
 import { Navbar } from './components/common/Navbar';
@@ -17,9 +17,9 @@ function App() {
         <div className="hidden md:block">
           <Sidebar />
         </div>
-        
+
         <div className="flex flex-col flex-1 w-full relative">
-          
+
           <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
             <Routes>
               <Route path="/" element={<Home />} />
@@ -28,7 +28,7 @@ function App() {
               <Route path="/ar" element={<CampusAR />} />
             </Routes>
           </main>
-          
+
           {/* Bottom Navigation for Mobile */}
           <div className="md:hidden absolute bottom-0 left-0 w-full z-50">
             <Navbar />
