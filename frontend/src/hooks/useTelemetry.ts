@@ -1,22 +1,31 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGeolocation } from './useGeolocation';
-import axios from 'axios';
+import { apiClient } from '../api/axios';
 
-// Generate a random ID for this session if one doesn't exist
-const getDeviceId = () => {
-  let id = sessionStorage.getItem('telemetry_device_id');
-  if (!id) {
-    id = 'device_' + Math.random().toString(36).substring(2, 15);
-    sessionStorage.setItem('telemetry_device_id', id);
-  }
-  return id;
-};
+export function useTelemetry(enabled = true) {
+  const getDeviceId = () => {
+    let id = sessionStorage.getItem('telemetry_device_id');
+    if (!id) {
+      id = 'device_' + Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('telemetry_device_id', id);
+    }
+    return id;
+  };
 
-const TELEMETRY_API_URL = 'http://localhost:8000/telemetry/location';
+  const [deviceId, setDeviceId] = useState(getDeviceId());
 
-export function useTelemetry(enabled: boolean = true) {
+  // Periodically check if deviceId in sessionStorage has changed (e.g., when sharing location)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentId = sessionStorage.getItem('telemetry_device_id');
+      if (currentId && currentId !== deviceId) {
+        setDeviceId(currentId);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [deviceId]);
+
   const location = useGeolocation();
-  const deviceId = getDeviceId();
   const lastPingTime = useRef<number>(0);
 
   useEffect(() => {
@@ -28,7 +37,7 @@ export function useTelemetry(enabled: boolean = true) {
 
     lastPingTime.current = now;
 
-    axios.post(TELEMETRY_API_URL, {
+    apiClient.post('/telemetry/location', {
       device_id: deviceId,
       lat: location.latitude,
       lng: location.longitude,

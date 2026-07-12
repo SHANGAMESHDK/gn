@@ -41,10 +41,27 @@ export function CampusMap() {
   const { currentInstruction, cameraBearing } = useNavigationDirections(gps.latitude, gps.longitude, routeData);
   const weather = useLiveWeather(initialCenter[1], initialCenter[0]);
   
-  // Telemetry & Heatmap
-  const { isBroadcasting } = useTelemetry(true);
+  useTelemetry(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<any>(null);
+  
+  // Active Friends
+  const [activeFriends, setActiveFriends] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const res = await apiClient.get('/telemetry/active_friends');
+        setActiveFriends(res.data.friends || []);
+      } catch (e) {
+        console.warn("Failed to fetch active friends", e);
+      }
+    };
+    
+    fetchFriends();
+    const interval = setInterval(fetchFriends, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!showHeatmap) return;
@@ -397,6 +414,31 @@ export function CampusMap() {
               </div>
             </Marker>
           )}
+
+          {/* Active Friends Markers */}
+          {activeFriends.map(friend => (
+            <Marker
+              key={friend.code}
+              longitude={friend.lng}
+              latitude={friend.lat}
+              anchor="center"
+              rotationAlignment="map"
+            >
+              <div className="relative group hover:z-50 cursor-pointer">
+                {/* 3D Avatar Marker */}
+                <div className="w-12 h-12 rounded-full border-2 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] overflow-hidden bg-slate-800 flex items-center justify-center">
+                  <span className="text-emerald-400 font-bold text-lg">{friend.name.charAt(0).toUpperCase()}</span>
+                </div>
+                
+                {/* Name label */}
+                <div 
+                  className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap shadow-lg border border-slate-700/50"
+                >
+                  {friend.name}
+                </div>
+              </div>
+            </Marker>
+          ))}
         </Map>
       </div>
 
