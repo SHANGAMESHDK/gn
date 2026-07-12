@@ -11,6 +11,8 @@ interface DetailModalProps {
   category?: string;
   themeColor?: 'blue' | 'orange';
   destinationNodeId?: string | number;
+  destinationLat?: number;
+  destinationLng?: number;
 }
 
 export function DetailModal({
@@ -22,7 +24,9 @@ export function DetailModal({
   icon,
   category,
   themeColor = 'blue',
-  destinationNodeId
+  destinationNodeId,
+  destinationLat,
+  destinationLng
 }: DetailModalProps) {
   const navigate = useNavigate();
 
@@ -34,7 +38,13 @@ export function DetailModal({
   const gradientClass = themeColor === 'blue' ? 'from-blue-500 to-purple-600' : 'from-orange-500 to-pink-600';
 
   const handleNavigate = () => {
-    navigate(`/map?destination=${encodeURIComponent(title)}&destination_node_id=${destinationNodeId || ''}`);
+    let url = `/map?destination=${encodeURIComponent(title)}`;
+    if (destinationNodeId) {
+      url += `&destination_node_id=${destinationNodeId}`;
+    } else if (destinationLat && destinationLng) {
+      url += `&destination_lat=${destinationLat}&destination_lng=${destinationLng}`;
+    }
+    navigate(url);
     onClose();
   };
 

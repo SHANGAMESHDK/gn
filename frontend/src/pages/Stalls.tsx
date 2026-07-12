@@ -151,6 +151,8 @@ export function Stalls() {
         category={selectedStall?.category}
         themeColor="orange"
         destinationNodeId={selectedStall?.node_id}
+        destinationLat={selectedStall?.latitude}
+        destinationLng={selectedStall?.longitude}
       />
     </div>
   );

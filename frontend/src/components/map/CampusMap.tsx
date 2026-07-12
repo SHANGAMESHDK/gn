@@ -17,7 +17,9 @@ export function CampusMap() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const destination = searchParams.get('destination');
-  const destinationNodeId = searchParams.get('destination_node_id') || searchParams.get('node_id');
+  const destinationNodeIdParam = searchParams.get('destination_node_id') || searchParams.get('node_id');
+  const destLat = searchParams.get('destination_lat');
+  const destLng = searchParams.get('destination_lng');
   const sourceNodeId = searchParams.get('source_node_id');
 
   // Center is [lng, lat] in MapLibre
@@ -28,6 +30,7 @@ export function CampusMap() {
   const [routeData, setRouteData] = useState<any>(null);
   const [routeCoords, setRouteCoords] = useState<[number, number][]>([]); // [lng, lat]
   const [buildingsGeoJSON, setBuildingsGeoJSON] = useState<any>(null);
+  const [resolvedDestinationNodeId, setResolvedDestinationNodeId] = useState<string | null>(destinationNodeIdParam);
   
   // Modal State
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
@@ -39,6 +42,27 @@ export function CampusMap() {
       setFollowMe(true);
     }
   }, [sourceNodeId]);
+
+  // Resolve lat/lng to Node ID if necessary
+  useEffect(() => {
+    async function resolveDest() {
+      if (destinationNodeIdParam) {
+        setResolvedDestinationNodeId(destinationNodeIdParam);
+      } else if (destLat && destLng) {
+        try {
+          const res = await NavigationAPI.getNearestNode(parseFloat(destLat), parseFloat(destLng));
+          if (res && res.node_id) {
+            setResolvedDestinationNodeId(res.node_id.toString());
+          }
+        } catch (e) {
+          console.error("Failed to resolve nearest node", e);
+        }
+      } else {
+        setResolvedDestinationNodeId(null);
+      }
+    }
+    resolveDest();
+  }, [destinationNodeIdParam, destLat, destLng]);
 
   // Camera Follow Me Mode (3D View)
   useEffect(() => {
@@ -60,11 +84,11 @@ export function CampusMap() {
   // Route Fetch
   useEffect(() => {
     async function fetchRoute() {
-      if (!destinationNodeId) return;
+      if (!resolvedDestinationNodeId) return;
       try {
         let res;
         try {
-          const dst = parseInt(destinationNodeId, 10);
+          const dst = parseInt(resolvedDestinationNodeId, 10);
           if (sourceNodeId === 'gps') {
             if (gps.latitude && gps.longitude) {
               res = await NavigationAPI.getRouteFromGPS(gps.latitude, gps.longitude, dst);
@@ -100,7 +124,7 @@ export function CampusMap() {
       }
     }
     fetchRoute();
-  }, [destinationNodeId, sourceNodeId, gps.latitude, gps.longitude]);
+  }, [resolvedDestinationNodeId, sourceNodeId, gps.latitude, gps.longitude]);
 
   // Fetch Buildings GeoJSON
   useEffect(() => {
@@ -151,7 +175,7 @@ export function CampusMap() {
       ) : (
         <>
           <RoutePlanner
-            initialDestinationNodeId={destinationNodeId}
+            initialDestinationNodeId={resolvedDestinationNodeId}
             initialDestinationName={destination}
           />
           {routeData && routeData.coordinates && routeData.coordinates.length > 0 && (
