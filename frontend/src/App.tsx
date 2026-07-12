@@ -5,6 +5,8 @@ import { Home } from './pages/Home';
 import { Map } from './pages/Map';
 import { Admin } from './pages/Admin';
 import { CampusAR } from './pages/CampusAR';
+import { Buildings } from './pages/Buildings';
+import { Stalls } from './pages/Stalls';
 
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
@@ -24,6 +26,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/map" element={<Map />} />
+              <Route path="/buildings" element={<Buildings />} />
+              <Route path="/stalls" element={<Stalls />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/ar" element={<CampusAR />} />
             </Routes>

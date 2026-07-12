@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Map, Glasses, Settings, Compass } from 'lucide-react';
+import { Home, Map, Glasses, Settings, Compass, Building, Store } from 'lucide-react';
 
 export function Sidebar() {
   const navItems = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/map', icon: Map, label: 'Interactive Map' },
+    { to: '/buildings', icon: Building, label: 'Buildings' },
+    { to: '/stalls', icon: Store, label: 'Stalls' },
     { to: '/ar', icon: Glasses, label: 'AR Mode' },
   ];
 

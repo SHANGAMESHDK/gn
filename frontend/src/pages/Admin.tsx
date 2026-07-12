@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { AdminAPI, StallsAPI } from '../api';
-import { Activity, Database, GitMerge, RefreshCw, Trash2, Edit, MapPin, Network } from 'lucide-react';
+import { AdminAPI, StallsAPI, BuildingsAPI } from '../api';
+import { Activity, Database, GitMerge, RefreshCw, Trash2, Edit, MapPin, Network, Lock, ShieldCheck } from 'lucide-react';
 import { AdminStallPlacer } from '../components/admin/AdminStallPlacer';
 import { AdminGraphEditor } from '../components/admin/AdminGraphEditor';
+import { AdminEditModal } from '../components/admin/AdminEditModal';
 
 export function Admin() {
   const [stats, setStats] = useState<any>(null);
@@ -12,16 +13,35 @@ export function Admin() {
   const [error, setError] = useState<string | null>(null);
   const [showPlacer, setShowPlacer] = useState(false);
   const [showGraphEditor, setShowGraphEditor] = useState(false);
+  const [buildings, setBuildings] = useState<any[]>([]);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingType, setEditingType] = useState<'building' | 'stall' | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === 'admin' && password === 'admin123') {
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError('Invalid credentials');
+    }
+  };
 
   async function loadData() {
     setLoading(true);
     try {
-      const [statsData, stallsData] = await Promise.all([
+      const [statsData, stallsData, buildingsData] = await Promise.all([
         AdminAPI.getStatus(),
-        StallsAPI.getAllStalls()
+        StallsAPI.getAllStalls(),
+        BuildingsAPI.getAllBuildings()
       ]);
       setStats(statsData);
       setStalls(stallsData.stalls || []);
+      setBuildings(buildingsData.buildings || []);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch admin data from backend.');
@@ -79,6 +99,74 @@ export function Admin() {
     } catch (err: any) {
       alert("Failed to create stall: " + err.message);
     }
+  }
+
+  async function handleSaveItem(data: any) {
+    try {
+      if (editingType === 'stall') {
+        await StallsAPI.updateStall(data);
+        setStalls(stalls.map(s => s.id === data.id ? data : s));
+      } else if (editingType === 'building') {
+        await BuildingsAPI.updateBuildingOverride(data);
+        setBuildings(buildings.map(b => b.id === data.id ? { ...b, ...data } : b));
+      }
+    } catch (err: any) {
+      alert("Failed to save: " + err.message);
+      throw err;
+    }
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-full flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
+        <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden transform transition-all hover:scale-[1.01]">
+          <div className="p-8 text-center bg-gradient-to-br from-indigo-600 to-blue-700 relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl"></div>
+            <ShieldCheck className="mx-auto text-white mb-4 drop-shadow-md" size={56} />
+            <h2 className="text-3xl font-black text-white tracking-tight">Admin Gateway</h2>
+            <p className="text-indigo-100 mt-2 font-medium">Secure Access Only</p>
+          </div>
+          <div className="p-8 space-y-6">
+            <form onSubmit={handleLogin} className="space-y-5">
+              {authError && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-bold rounded-xl text-center animate-pulse">
+                  {authError}
+                </div>
+              )}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Username</label>
+                <input 
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-slate-800 dark:text-white transition-all font-medium"
+                  placeholder="Enter admin username"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-slate-800 dark:text-white transition-all font-medium"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="w-full py-4 mt-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:shadow-indigo-300 transition-all flex items-center justify-center gap-2"
+              >
+                <Lock size={18} /> Authenticate
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -212,7 +300,7 @@ export function Admin() {
                     </span>
                   </td>
                   <td className="p-4 text-right flex items-center justify-end gap-2">
-                    <button className="p-2 text-slate-400 hover:text-blue-500 transition-colors" title="Edit (Coming soon)">
+                    <button onClick={() => { setEditingItem(stall); setEditingType('stall'); }} className="p-2 text-slate-400 hover:text-blue-500 transition-colors" title="Edit">
                       <Edit size={16} />
                     </button>
                     <button onClick={() => handleDeleteStall(stall.id)} className="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Delete">
@@ -224,6 +312,46 @@ export function Admin() {
               {stalls.length === 0 && !loading && (
                 <tr>
                   <td colSpan={6} className="p-8 text-center text-slate-500">No stalls found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      {/* Buildings Management */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mt-8">
+        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Buildings Management</h2>
+        </div>
+        <div className="overflow-x-auto max-h-96">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-sm">
+                <th className="p-4 font-medium">ID</th>
+                <th className="p-4 font-medium">Name</th>
+                <th className="p-4 font-medium">Has Description</th>
+                <th className="p-4 font-medium">Has Photo</th>
+                <th className="p-4 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {buildings.map(building => (
+                <tr key={building.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                  <td className="p-4 text-slate-600 dark:text-slate-300 font-mono text-xs">{building.id}</td>
+                  <td className="p-4 font-medium text-slate-800 dark:text-white">{building.name || building.Name}</td>
+                  <td className="p-4 text-slate-500">{building.description ? 'Yes' : 'No'}</td>
+                  <td className="p-4 text-slate-500">{building.cover_photo ? 'Yes' : 'No'}</td>
+                  <td className="p-4 text-right flex items-center justify-end gap-2">
+                    <button onClick={() => { setEditingItem(building); setEditingType('building'); }} className="p-2 text-slate-400 hover:text-blue-500 transition-colors" title="Edit">
+                      <Edit size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {buildings.length === 0 && !loading && (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-slate-500">No buildings found.</td>
                 </tr>
               )}
             </tbody>
@@ -247,6 +375,16 @@ export function Admin() {
       {showGraphEditor && (
         <AdminGraphEditor 
           onClose={() => setShowGraphEditor(false)} 
+        />
+      )}
+
+      {editingItem && editingType && (
+        <AdminEditModal 
+          isOpen={!!editingItem}
+          initialData={editingItem} 
+          type={editingType} 
+          onSave={handleSaveItem} 
+          onClose={() => { setEditingItem(null); setEditingType(null); }} 
         />
       )}
     </div>

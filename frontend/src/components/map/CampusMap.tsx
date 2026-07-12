@@ -8,7 +8,9 @@ import { RoutePlanner } from './RoutePlanner';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { useNavigationDirections } from '../../hooks/useNavigationDirections';
 import { LiveNavigationPanel } from './LiveNavigationPanel';
+import { RouteDirectionsList } from './RouteDirectionsList';
 import { WalkingBoyAvatar } from './WalkingBoyAvatar';
+import { DetailModal } from '../common/DetailModal';
 
 export function CampusMap() {
   const mapRef = useRef<MapRef>(null);
@@ -26,6 +28,9 @@ export function CampusMap() {
   const [routeData, setRouteData] = useState<any>(null);
   const [routeCoords, setRouteCoords] = useState<[number, number][]>([]); // [lng, lat]
   const [buildingsGeoJSON, setBuildingsGeoJSON] = useState<any>(null);
+  
+  // Modal State
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
 
   const { currentInstruction, cameraBearing } = useNavigationDirections(gps.latitude, gps.longitude, routeData);
 
@@ -119,20 +124,52 @@ export function CampusMap() {
     }]
   }), [routeCoords]);
 
+  const handleMapClick = (event: any) => {
+    const feature = event.features && event.features[0];
+    if (feature && feature.layer.id === '3d-buildings') {
+      setSelectedLocation(feature.properties);
+    } else {
+      setSelectedLocation(null);
+    }
+  };
+
   return (
     <div className="w-full h-full relative">
+      
+      {/* Detail Modal */}
+      <DetailModal
+        isOpen={!!selectedLocation}
+        onClose={() => setSelectedLocation(null)}
+        onNavigate={() => {
+          if (selectedLocation?.node_id) {
+            navigate(`/map?destination_node_id=${selectedLocation.node_id}&destination=${encodeURIComponent(selectedLocation.Name || 'Destination')}`);
+          }
+        }}
+        title={selectedLocation?.Name || 'Building'}
+        description={selectedLocation?.description}
+        coverPhoto={selectedLocation?.cover_photo}
+        type={selectedLocation?.type || 'building'}
+      />
+
       {sourceNodeId === 'gps' && routeData ? (
         <LiveNavigationPanel routeData={routeData} destination={destination} instruction={currentInstruction} />
       ) : (
-        <RoutePlanner
-          initialDestinationNodeId={destinationNodeId}
-          initialDestinationName={destination}
-        />
+        <>
+          <RoutePlanner
+            initialDestinationNodeId={destinationNodeId}
+            initialDestinationName={destination}
+          />
+          {routeData && routeData.coordinates && routeData.coordinates.length > 0 && (
+            <RouteDirectionsList routeData={routeData} />
+          )}
+        </>
       )}
 
       <div className="w-full h-[calc(100vh-4rem)] md:h-screen z-0 bg-slate-900">
         <Map
           ref={mapRef}
+          onClick={handleMapClick}
+          interactiveLayerIds={['3d-buildings']}
           initialViewState={{
             longitude: initialCenter[0],
             latitude: initialCenter[1],

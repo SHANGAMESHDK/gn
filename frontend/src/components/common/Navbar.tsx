@@ -1,11 +1,12 @@
-import { Map as MapIcon, Glasses, Home, Settings } from 'lucide-react';
+import { Map as MapIcon, Glasses, Home, Settings, Building, Store } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export function Navbar() {
   const navItems = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/map', icon: MapIcon, label: 'Map' },
-    { to: '/ar', icon: Glasses, label: 'AR Mode' },
+    { to: '/buildings', icon: Building, label: 'Buildings' },
+    { to: '/stalls', icon: Store, label: 'Stalls' },
     { to: '/admin', icon: Settings, label: 'Admin' },
   ];
 

@@ -24,6 +24,16 @@ def get_buildings():
     try:
         from fastapi.encoders import jsonable_encoder
         b = search_service.list_buildings()
+        
+        # Merge overrides
+        overrides = get_building_overrides()
+        for bldg in b:
+            if str(bldg["id"]) in overrides:
+                ov = overrides[str(bldg["id"])]
+                if "description" in ov: bldg["description"] = ov["description"]
+                if "cover_photo" in ov: bldg["cover_photo"] = ov["cover_photo"]
+                if "Name" in ov: bldg["name"] = ov["Name"]
+                
         jsonable_encoder(b) # test if encoder crashes
         return {
             "count": len(b),
@@ -58,12 +68,9 @@ def custom_building_override(override: dict):
     if b_id not in data:
         data[b_id] = {}
         
-    if "height" in override:
-        data[b_id]["height"] = override["height"]
-    if "color" in override:
-        data[b_id]["color"] = override["color"]
-    if "Name" in override:
-        data[b_id]["Name"] = override["Name"]
+    for field in ["height", "color", "Name", "description", "cover_photo"]:
+        if field in override:
+            data[b_id][field] = override[field]
     if "walkable" in override:
         data[b_id]["walkable"] = override["walkable"]
         if override["walkable"]:
@@ -200,6 +207,8 @@ def get_buildings_geojson():
                 if "color" in ov: props["color"] = ov["color"]
                 if "Name" in ov: props["Name"] = ov["Name"]
                 if "walkable" in ov: props["walkable"] = ov["walkable"]
+                if "description" in ov: props["description"] = ov["description"]
+                if "cover_photo" in ov: props["cover_photo"] = ov["cover_photo"]
                 
         return features_dict
     except Exception as e:

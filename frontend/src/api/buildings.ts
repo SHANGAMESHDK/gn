@@ -16,5 +16,9 @@ export const BuildingsAPI = {
   getSuggestions: async () => {
     const response = await apiClient.get('/buildings/suggestions/all');
     return response.data;
+  },
+  updateBuildingOverride: async (data: any) => {
+    const response = await apiClient.post('/buildings/override', data);
+    return response.data;
   }
 };
