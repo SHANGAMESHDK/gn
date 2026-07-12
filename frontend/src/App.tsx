@@ -22,7 +22,7 @@ function App() {
 
         <div className="flex flex-col flex-1 w-full relative">
 
-          <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+          <main className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/map" element={<Map />} />

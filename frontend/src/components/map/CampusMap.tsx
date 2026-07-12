@@ -134,7 +134,7 @@ export function CampusMap() {
   };
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full flex flex-col relative flex-1">
       
       {/* Detail Modal */}
       <DetailModal
@@ -160,7 +160,7 @@ export function CampusMap() {
         </>
       )}
 
-      <div className="w-full h-[calc(100vh-4rem)] md:h-screen z-0 bg-slate-900">
+      <div className="w-full flex-1 z-0 bg-slate-900 relative">
         <Map
           ref={mapRef}
           onClick={handleMapClick}
