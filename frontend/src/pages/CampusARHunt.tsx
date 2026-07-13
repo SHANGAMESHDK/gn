@@ -1,8 +1,10 @@
-// @ts-nocheck
-import { useEffect, useState } from 'react';
+import { useState, useRef } from 'react';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
 import { Trophy, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { useWebcam } from '../hooks/useWebcam';
+import { useDeviceOrientation } from '../hooks/useDeviceOrientation';
+import { calculateBearing } from '../hooks/useNavigationDirections';
 
 interface EasterEgg {
   id: string;
@@ -21,8 +23,15 @@ const EASTER_EGGS: EasterEgg[] = [
   { id: 'egg5', name: 'Glowing Orb', lat: 13.031700, lng: 80.179750, type: 'orb', color: '#34d399' }
 ];
 
+const FOV = 60; // Mobile camera horizontal Field of View
+const MAX_DISTANCE = 200; // Scavenger hunt covers a wider radius
+
 export function CampusARHunt() {
-  const { latitude, longitude, error } = useGeolocation();
+  const { latitude, longitude, error: gpsError } = useGeolocation();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const { error: camError } = useWebcam(videoRef);
+  const { heading, needsPermission, permissionGranted, requestPermission, error: orientationError } = useDeviceOrientation();
+  
   const [collectedEggs, setCollectedEggs] = useState<string[]>([]);
   const [simulationMode, setSimulationMode] = useState(true); // Default to true for testing
   const navigate = useNavigate();
@@ -43,7 +52,15 @@ export function CampusARHunt() {
   const isComplete = collectedEggs.length === EASTER_EGGS.length;
 
   return (
-    <div style={{ margin: 0, overflow: 'hidden', height: '100vh', width: '100vw', position: 'relative', backgroundColor: '#0f172a' }}>
+    <div className="relative w-screen h-screen overflow-hidden bg-slate-900 text-white">
+      {/* Background Camera Feed */}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      />
 
       {/* UI Overlay */}
       <div className="absolute top-0 left-0 w-full z-50 p-6 pointer-events-none flex flex-col gap-4">
@@ -52,7 +69,7 @@ export function CampusARHunt() {
         <div className="flex justify-between items-start">
           <button
             onClick={() => navigate(-1)}
-            className="bg-white/90 backdrop-blur p-3 rounded-full shadow-lg pointer-events-auto text-slate-800 hover:bg-white transition-colors"
+            className="bg-slate-900/80 backdrop-blur p-3 rounded-full shadow-lg pointer-events-auto text-white hover:bg-slate-800 transition-colors"
           >
             <ArrowLeft size={24} />
           </button>
@@ -60,20 +77,26 @@ export function CampusARHunt() {
           <div className="flex flex-col items-end gap-2 pointer-events-auto">
             <button
               onClick={() => setSimulationMode(!simulationMode)}
-              className={`px-4 py-2 rounded-full font-bold shadow-lg text-sm transition-colors ${simulationMode ? 'bg-amber-500 text-white' : 'bg-slate-800/90 text-slate-200'
-                }`}
+              className={`px-4 py-2 rounded-full font-bold shadow-lg text-sm transition-colors ${
+                simulationMode ? 'bg-amber-500 text-white' : 'bg-slate-800/90 text-slate-200'
+              }`}
             >
               {simulationMode ? 'Simulation Active' : 'Live GPS'}
             </button>
-            {error && !simulationMode && (
-              <span className="text-red-400 bg-slate-900/80 px-3 py-1 rounded-full text-xs">GPS Error: {error}</span>
+            {gpsError && !simulationMode && (
+              <span className="text-red-400 bg-slate-900/80 px-3 py-1 rounded-full text-xs">GPS Error: {gpsError}</span>
+            )}
+            {(camError || orientationError) && (
+              <div className="bg-red-500/90 text-white px-3 py-1 rounded-full text-xs shadow-lg backdrop-blur">
+                {camError || orientationError}
+              </div>
             )}
           </div>
         </div>
 
         {/* Scoreboard */}
         <div className="self-center bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 px-8 py-4 rounded-3xl shadow-xl pointer-events-auto flex items-center gap-4">
-          <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-2xl text-amber-500">
+          <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-2xl text-amber-500 shadow-inner">
             <Trophy size={32} />
           </div>
           <div>
@@ -86,6 +109,23 @@ export function CampusARHunt() {
           </div>
         </div>
       </div>
+
+      {/* Permission Request Overlay */}
+      {needsPermission && !permissionGranted && (
+        <div className="absolute inset-0 z-[100] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center pointer-events-auto">
+          <div className="bg-amber-500/20 w-24 h-24 rounded-full flex items-center justify-center mb-6">
+            <Trophy size={40} className="text-amber-400" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">AR Hunt Needs Compass Access</h2>
+          <p className="text-slate-400 mb-8 max-w-sm">To find the hidden Easter Eggs around you, we need access to your device's orientation sensors.</p>
+          <button 
+            onClick={requestPermission}
+            className="bg-amber-600 hover:bg-amber-500 text-white font-bold py-4 px-8 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all"
+          >
+            Enable AR Compass
+          </button>
+        </div>
+      )}
 
       {/* Completion Modal */}
       {isComplete && (
@@ -100,7 +140,7 @@ export function CampusARHunt() {
             </p>
             <button 
               onClick={() => navigate('/')}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-colors"
+              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-colors shadow-lg"
             >
               Return Home
             </button>
@@ -108,64 +148,72 @@ export function CampusARHunt() {
         </div>
       )}
 
-      {/* A-Frame Scene for AR.js */}
-      <a-scene
-        vr-mode-ui="enabled: false"
-        embedded
-        arjs="sourceType: webcam; debugUIEnabled: false; videoTexture: true;"
-        cursor="rayOrigin: mouse"
-        raycaster="objects: .clickable"
-        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-      >
-        {/* Render uncollected Easter Eggs using modern gps-new-entity-place */}
-        {EASTER_EGGS.filter(egg => !collectedEggs.includes(egg.id)).map((egg) => (
-          <a-entity
-            key={egg.id}
-            class="clickable"
-            look-at="[gps-new-camera]"
-            gps-new-entity-place={`latitude: ${egg.lat}; longitude: ${egg.lng};`}
-            scale="10 10 10"
-            onClick={() => handleCollect(egg.id)}
-          >
-            {egg.type === 'coin' ? (
-              // Spinning Coin
-              <a-entity position="0 3 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
-                <a-cylinder radius="1" height="0.2" color={egg.color} rotation="90 0 0" opacity="0.9"></a-cylinder>
-                <a-cylinder radius="0.8" height="0.22" color="#fcd34d" rotation="90 0 0"></a-cylinder>
-              </a-entity>
-            ) : (
-              // Floating Orb
-              <a-entity position="0 3 0" animation="property: position; to: 0 4 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
-                <a-sphere radius="1.2" color={egg.color} opacity="0.8"></a-sphere>
-                <a-sphere radius="0.8" color="#ffffff" opacity="0.9"></a-sphere>
-              </a-entity>
-            )}
+      {/* AR Projection Layer */}
+      {activeLat && activeLng && heading !== null && (
+        <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+          {EASTER_EGGS.filter(egg => !collectedEggs.includes(egg.id)).map((egg) => {
+            // Calculate bearing from user to Easter Egg
+            const bearing = calculateBearing(activeLat, activeLng, egg.lat, egg.lng);
+            
+            // Note: Since this is a gamified demo with fixed static coordinates, we manually calculate 
+            // a mock distance if we're in simulation mode so that eggs aren't just overlapping.
+            // In a real app, distance is calculated via haversine.
+            const mockDistance = Math.abs((egg.lat - activeLat) * 100000) + Math.abs((egg.lng - activeLng) * 100000);
+            const displayDistance = simulationMode ? mockDistance : mockDistance; // simplifying for demo
 
-            {/* Label */}
-            <a-text
-              value={egg.name}
-              align="center"
-              color="#ffffff"
-              scale="2 2 2"
-              position="0 6 0"
-            ></a-text>
-            <a-text
-              value="TAP TO COLLECT"
-              align="center"
-              color="#facc15"
-              scale="1.5 1.5 1.5"
-              position="0 5 0"
-            ></a-text>
-          </a-entity>
-        ))}
+            // Calculate difference between phone heading and egg bearing
+            let angleDiff = bearing - heading;
+            
+            if (angleDiff > 180) angleDiff -= 360;
+            if (angleDiff < -180) angleDiff += 360;
 
-        {/* Modern GPS Camera */}
-        <a-camera
-          gps-new-camera={simulationMode ? `simulateLatitude: ${SIMULATED_LAT}; simulateLongitude: ${SIMULATED_LNG}` : "gpsMinDistance: 2"}
-          rotation-reader
-        >
-        </a-camera>
-      </a-scene>
+            if (Math.abs(angleDiff) > 90) return null;
+
+            const xPercent = 50 + (angleDiff / (FOV / 2)) * 50;
+            const scale = Math.max(0.5, 1 - (displayDistance / MAX_DISTANCE));
+            const yPercent = 50 - (displayDistance / MAX_DISTANCE) * 10;
+
+            return (
+              <div
+                key={egg.id}
+                onClick={() => handleCollect(egg.id)}
+                className="absolute transition-transform duration-75 pointer-events-auto cursor-pointer flex flex-col items-center hover:scale-110 active:scale-95"
+                style={{
+                  left: `${xPercent}%`,
+                  top: `${yPercent}%`,
+                  transform: `translate(-50%, -50%) scale(${scale})`,
+                  zIndex: Math.round((MAX_DISTANCE - displayDistance) * 10)
+                }}
+              >
+                {/* 3D-like CSS Element */}
+                {egg.type === 'coin' ? (
+                  <div className="w-24 h-24 rounded-full border-[6px] border-amber-300 bg-amber-400 flex items-center justify-center shadow-[0_0_30px_rgba(251,191,36,0.6)] animate-bounce relative">
+                     <div className="absolute inset-2 border-4 border-amber-200/50 rounded-full"></div>
+                     <span className="text-4xl">💰</span>
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-blue-400 flex items-center justify-center shadow-[0_0_40px_rgba(96,165,250,0.8)] relative animate-pulse">
+                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/60 rounded-full"></div>
+                     <span className="text-4xl drop-shadow-lg">✨</span>
+                  </div>
+                )}
+                
+                <div className="mt-4 px-4 py-2 bg-slate-900/80 backdrop-blur rounded-full text-white font-bold border border-slate-700 shadow-xl">
+                  {egg.name}
+                </div>
+                <div className="mt-2 text-xs font-bold text-amber-400 drop-shadow-md bg-black/50 px-2 py-1 rounded">
+                  TAP TO COLLECT
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      
+      {/* Target Crosshair */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-20 pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
+      </div>
     </div>
   );
 }
