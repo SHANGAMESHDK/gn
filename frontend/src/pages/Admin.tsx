@@ -264,7 +264,7 @@ export function Admin() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3 mb-4">
                 <Activity className="text-green-500" size={20} />
@@ -290,15 +290,6 @@ export function Admin() {
               </div>
               <p className="text-3xl font-bold text-slate-800 dark:text-white">
                 {stats.edges}
-              </p>
-            </div>
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`w-3 h-3 rounded-full ${stats.connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <h3 className="font-medium text-slate-500 dark:text-slate-400">Graph Connectivity</h3>
-              </div>
-              <p className="text-3xl font-bold text-slate-800 dark:text-white">
-                {stats.connected ? 'Connected' : 'Disconnected'}
               </p>
             </div>
           </div>
