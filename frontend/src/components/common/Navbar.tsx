@@ -11,7 +11,7 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex items-center justify-around px-2 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+    <nav className="h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 flex items-center justify-around px-2 pb-safe shadow-2xl rounded-2xl mx-4 mb-4">
       {navItems.map((item) => (
         <NavLink
           key={item.to}

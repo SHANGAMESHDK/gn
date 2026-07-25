@@ -536,43 +536,46 @@ export function CampusMap() {
               });
             }
           }}
-          className={`absolute bottom-6 right-6 z-[1000] p-4 rounded-full shadow-lg transition-all ${followMe ? 'bg-blue-600 text-white shadow-blue-500/50' : 'bg-white text-slate-700 hover:bg-slate-50'}`}
+          className={`absolute bottom-28 right-4 md:bottom-8 md:right-4 z-[1000] p-4 rounded-full shadow-lg transition-all ${followMe ? 'bg-blue-600 text-white shadow-blue-500/50' : 'bg-white text-slate-700 hover:bg-slate-50'}`}
           title="Follow my location"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M2 12h2" /><path d="M20 12h2" /><circle cx="12" cy="12" r="4" /></svg>
         </button>
       )}
 
-      {/* AR Mode Button */}
-      <button
-        onClick={() => navigate('/ar')}
-        className="absolute top-24 right-4 z-[1000] bg-white text-slate-700 p-3 rounded-full shadow-lg hover:bg-slate-50 transition-all"
-        title="Enter AR Mode"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
-      </button>
+      {/* Map Floating Actions */}
+      <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[1000] flex flex-col gap-3">
+        {/* AR Mode Button */}
+        <button
+          onClick={() => navigate('/ar')}
+          className="bg-white text-slate-700 p-3 rounded-full shadow-lg hover:bg-slate-50 transition-all flex items-center justify-center"
+          title="Enter AR Mode"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+        </button>
 
-      {/* Live Heatmap Toggle Button */}
-      <button
-        onClick={() => setShowHeatmap(!showHeatmap)}
-        className={`absolute top-36 right-4 z-[1000] p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
-          showHeatmap ? 'bg-orange-500 text-white shadow-orange-500/50 hover:bg-orange-600' : 'bg-white text-slate-700 hover:bg-slate-50'
-        }`}
-        title="Toggle Live Activity Heatmap"
-      >
-        <Activity size={24} />
-      </button>
-      
-      {/* FriendSync Toggle Button */}
-      <button
-        onClick={() => setShowFriends(!showFriends)}
-        className={`absolute top-48 right-4 z-[1000] p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
-          showFriends ? 'bg-emerald-500 text-white shadow-emerald-500/50 hover:bg-emerald-600' : 'bg-white text-slate-700 hover:bg-slate-50'
-        }`}
-        title="Show Active Friends"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </button>
+        {/* Live Heatmap Toggle Button */}
+        <button
+          onClick={() => setShowHeatmap(!showHeatmap)}
+          className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
+            showHeatmap ? 'bg-orange-500 text-white shadow-orange-500/50 hover:bg-orange-600' : 'bg-white text-slate-700 hover:bg-slate-50'
+          }`}
+          title="Toggle Live Activity Heatmap"
+        >
+          <Activity size={24} />
+        </button>
+        
+        {/* FriendSync Toggle Button */}
+        <button
+          onClick={() => setShowFriends(!showFriends)}
+          className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
+            showFriends ? 'bg-emerald-500 text-white shadow-emerald-500/50 hover:bg-emerald-600' : 'bg-white text-slate-700 hover:bg-slate-50'
+          }`}
+          title="Show Active Friends"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </button>
+      </div>
     </div>
   );
 }

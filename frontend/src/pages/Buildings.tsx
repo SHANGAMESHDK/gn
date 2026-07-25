@@ -42,7 +42,7 @@ export function Buildings() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-64 bg-slate-200 dark:bg-slate-800 rounded-3xl animate-pulse"></div>
+              <div key={i} className="min-h-[16rem] bg-slate-200 dark:bg-slate-800 rounded-3xl animate-pulse"></div>
             ))}
           </div>
         ) : (
@@ -51,7 +51,7 @@ export function Buildings() {
               <div 
                 key={index} 
                 onClick={() => setSelectedBuilding(building)}
-                className="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-500/30 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col h-64"
+                className="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-500/30 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col min-h-[16rem]"
               >
                 {building.cover_photo ? (
                   <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500">

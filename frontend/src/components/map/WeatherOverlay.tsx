@@ -18,7 +18,7 @@ export function WeatherOverlay({ weather }: WeatherOverlayProps) {
   return (
     <>
       {/* Weather Widget */}
-      <div className="absolute top-4 right-4 z-[1000] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-2xl p-3 shadow-lg flex items-center gap-3">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full py-2 px-4 shadow-lg flex items-center gap-3">
         <div className="flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-full p-2">
           {getWeatherIcon()}
         </div>

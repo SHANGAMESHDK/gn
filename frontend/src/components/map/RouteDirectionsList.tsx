@@ -35,7 +35,7 @@ export function RouteDirectionsList({ routeData }: RouteDirectionsListProps) {
   const totalDistance = instructions.reduce((acc, inst) => acc + inst.distance, 0);
 
   return (
-    <div className="absolute top-4 right-4 z-[1000] w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[80vh] transition-all">
+    <div className="absolute bottom-24 left-4 right-4 md:bottom-auto md:top-24 md:left-auto md:right-4 z-[2000] md:w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[40vh] md:max-h-[70vh] transition-all">
       <div 
         className="bg-slate-50 dark:bg-slate-900 p-4 flex items-center justify-between cursor-pointer border-b border-slate-200 dark:border-slate-700"
         onClick={() => setIsExpanded(!isExpanded)}
