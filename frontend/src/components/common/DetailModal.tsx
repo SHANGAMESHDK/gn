@@ -1,4 +1,4 @@
-import { X, Map, ArrowRight } from 'lucide-react';
+import { X, Map, ArrowRight, Glasses } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface DetailModalProps {
@@ -39,6 +39,17 @@ export function DetailModal({
 
   const handleNavigate = () => {
     let url = `/map?destination=${encodeURIComponent(title)}`;
+    if (destinationNodeId) {
+      url += `&destination_node_id=${destinationNodeId}`;
+    } else if (destinationLat && destinationLng) {
+      url += `&destination_lat=${destinationLat}&destination_lng=${destinationLng}`;
+    }
+    navigate(url);
+    onClose();
+  };
+
+  const handleARNavigate = () => {
+    let url = `/ar?destination=${encodeURIComponent(title)}`;
     if (destinationNodeId) {
       url += `&destination_node_id=${destinationNodeId}`;
     } else if (destinationLat && destinationLng) {
@@ -96,12 +107,20 @@ export function DetailModal({
             </p>
           </div>
 
-          <button
-            onClick={handleNavigate}
-            className={`w-full py-4 ${bgClass} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group`}
-          >
-            <Map size={20} /> Navigate Here <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={handleNavigate}
+              className={`w-full py-4 ${bgClass} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group`}
+            >
+              <Map size={20} /> View on Map <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button
+              onClick={handleARNavigate}
+              className={`w-full py-4 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group`}
+            >
+              <Glasses size={20} /> AR Navigate Here <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

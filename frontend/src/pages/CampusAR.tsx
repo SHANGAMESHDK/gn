@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { apiClient } from '../api/axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useWebcam } from '../hooks/useWebcam';
 import { useDeviceOrientation } from '../hooks/useDeviceOrientation';
 import { calculateBearing } from '../hooks/useNavigationDirections';
+import { NavigationAPI } from '../api';
 
 interface ARPoi {
   id: string;
@@ -19,6 +20,25 @@ interface ARPoi {
 const FOV = 60; 
 const MAX_DISTANCE = 150; // meters
 
+// Helper for distance calculation
+function getDistanceFromLatLonInM(lat1: number, lon1: number, lat2: number, lon2: number) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; 
+  return d * 1000; 
+}
+
+function deg2rad(deg: number) {
+  return deg * (Math.PI/180);
+}
+
 export function CampusAR() {
   const { latitude, longitude, error: gpsError } = useGeolocation();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,9 +46,15 @@ export function CampusAR() {
   const { heading, needsPermission, permissionGranted, requestPermission, error: orientationError } = useDeviceOrientation();
   
   const [pois, setPois] = useState<ARPoi[]>([]);
+  const [routeWaypoints, setRouteWaypoints] = useState<any[]>([]);
+  const [destinationName, setDestinationName] = useState<string | null>(null);
+  
   const [loading, setLoading] = useState(false);
   const [simulationMode, setSimulationMode] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const destNodeId = searchParams.get('destination_node_id');
+  const destNameParam = searchParams.get('destination');
 
   // Central coordinates for testing
   const SIMULATED_LAT = 13.031836;
@@ -39,9 +65,28 @@ export function CampusAR() {
 
   useEffect(() => {
     if (activeLat && activeLng) {
-      fetchNearbyPOIs(activeLat, activeLng);
+      if (destNodeId) {
+        if (destNameParam) setDestinationName(destNameParam);
+        fetchRoute(activeLat, activeLng, parseInt(destNodeId));
+      } else {
+        fetchNearbyPOIs(activeLat, activeLng);
+      }
     }
-  }, [activeLat, activeLng]);
+  }, [activeLat, activeLng, destNodeId]);
+
+  const fetchRoute = async (lat: number, lng: number, destId: number) => {
+    try {
+      setLoading(true);
+      const res = await NavigationAPI.getRouteFromGPS(lat, lng, destId);
+      if (res && res.coordinates) {
+        setRouteWaypoints(res.coordinates);
+      }
+    } catch (err) {
+      console.error('Failed to fetch route for AR', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchNearbyPOIs = async (lat: number, lng: number) => {
     try {
@@ -96,6 +141,8 @@ export function CampusAR() {
               <span className="text-red-400">GPS Error: {gpsError}</span>
             ) : !activeLat ? (
               <span className="text-blue-400 animate-pulse">Waiting for GPS...</span>
+            ) : destNodeId ? (
+              <span className="text-emerald-400 font-bold">Navigating to {destinationName || 'Destination'}</span>
             ) : (
               <span>Found {pois.length} places nearby</span>
             )}
@@ -136,29 +183,67 @@ export function CampusAR() {
       {/* AR Projection Layer */}
       {activeLat && activeLng && heading !== null && (
         <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
-          {pois.map((poi) => {
-            // Calculate bearing from user to POI
-            const bearing = calculateBearing(activeLat, activeLng, poi.lat, poi.lng);
-            
-            // Calculate difference between phone heading and POI bearing
+          
+          {/* Navigation Route Waypoints */}
+          {routeWaypoints.map((wp, idx) => {
+            const distance = getDistanceFromLatLonInM(activeLat, activeLng, wp.latitude, wp.longitude);
+            if (distance > MAX_DISTANCE || distance < 2) return null; // Don't show if too far or already passed
+
+            const bearing = calculateBearing(activeLat, activeLng, wp.latitude, wp.longitude);
             let angleDiff = bearing - heading;
-            
-            // Normalize angle diff to -180 to 180
             if (angleDiff > 180) angleDiff -= 360;
             if (angleDiff < -180) angleDiff += 360;
 
-            // If it's outside our FOV (e.g. behind us), don't render it to save DOM overhead
             if (Math.abs(angleDiff) > 90) return null;
 
-            // Map angle difference to screen X percentage
-            // If angleDiff is 0, x = 50% (center)
-            // If angleDiff is FOV/2, x = 100% (right edge)
             const xPercent = 50 + (angleDiff / (FOV / 2)) * 50;
+            const scale = Math.max(0.2, 1 - (distance / MAX_DISTANCE));
             
-            // Scale object based on distance
+            // Route dots slightly lower on screen to simulate ground path
+            const yPercent = 65 - (distance / MAX_DISTANCE) * 30;
+            const isLast = idx === routeWaypoints.length - 1;
+
+            return (
+              <div
+                key={`wp-${idx}`}
+                className="absolute transition-transform duration-75 pointer-events-auto"
+                style={{
+                  left: `${xPercent}%`,
+                  top: `${yPercent}%`,
+                  transform: `translate(-50%, -50%) scale(${scale})`,
+                  zIndex: Math.round((MAX_DISTANCE - distance) * 10)
+                }}
+              >
+                {isLast ? (
+                   <div className="flex flex-col items-center gap-2">
+                     <div className="px-4 py-2 rounded-2xl shadow-2xl backdrop-blur-md border bg-red-600/80 border-red-400 text-white shadow-red-500/50">
+                       <span className="font-bold text-lg whitespace-nowrap">{destinationName || 'Destination'}</span>
+                     </div>
+                     <div className="px-3 py-1 rounded-full text-sm font-bold shadow-lg bg-red-900/90 text-red-200">
+                       {Math.round(distance)}m
+                     </div>
+                     <div className="w-1 h-12 rounded-full mt-1 bg-red-400"></div>
+                   </div>
+                ) : (
+                   <div className="flex flex-col items-center opacity-60">
+                     <div className="w-6 h-6 rounded-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)] border-2 border-white animate-pulse"></div>
+                   </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* POIs rendering (only if not navigating) */}
+          {!destNodeId && pois.map((poi) => {
+            const bearing = calculateBearing(activeLat, activeLng, poi.lat, poi.lng);
+            let angleDiff = bearing - heading;
+            if (angleDiff > 180) angleDiff -= 360;
+            if (angleDiff < -180) angleDiff += 360;
+
+            if (Math.abs(angleDiff) > 90) return null;
+
+            const xPercent = 50 + (angleDiff / (FOV / 2)) * 50;
             const scale = Math.max(0.3, 1 - (poi.distance / MAX_DISTANCE));
-            
-            // Y position can slightly float based on distance so they don't completely overlap
             const yPercent = 50 - (poi.distance / MAX_DISTANCE) * 20;
 
             const isBuilding = poi.type === 'building';
@@ -171,10 +256,10 @@ export function CampusAR() {
                   left: `${xPercent}%`,
                   top: `${yPercent}%`,
                   transform: `translate(-50%, -50%) scale(${scale})`,
-                  zIndex: Math.round((MAX_DISTANCE - poi.distance) * 10) // Closer objects on top
+                  zIndex: Math.round((MAX_DISTANCE - poi.distance) * 10)
                 }}
               >
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => navigate(`/ar?destination_node_id=${poi.id}&destination=${encodeURIComponent(poi.name)}`)}>
                   <div className={`px-4 py-2 rounded-2xl shadow-2xl backdrop-blur-md border ${
                     isBuilding 
                       ? 'bg-blue-600/80 border-blue-400 text-white shadow-blue-500/50' 
@@ -187,8 +272,6 @@ export function CampusAR() {
                   }`}>
                     {Math.round(poi.distance)}m
                   </div>
-                  
-                  {/* Pin Point pointing down */}
                   <div className={`w-1 h-12 rounded-full mt-1 ${isBuilding ? 'bg-blue-400' : 'bg-emerald-400'}`}></div>
                 </div>
               </div>
