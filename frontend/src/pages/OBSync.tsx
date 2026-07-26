@@ -70,8 +70,14 @@ export function OBSync() {
     };
 
     ws.onclose = (e) => {
-      console.log("WebSocket Closed:", e.code, e.reason);
+      console.log("WebSocket Closed:", e.code);
       setIsConnected(false);
+      if (e.code === 4000) {
+        alert("Your Call Sign is already in use by another active user. Please log in with a different name.");
+        sessionStorage.removeItem('obsync_call_sign');
+        sessionStorage.removeItem('telemetry_device_id');
+        setIsLoggedIn(false);
+      }
     };
 
     ws.onmessage = async (event) => {
@@ -206,6 +212,8 @@ export function OBSync() {
     } catch (err: any) {
       if (err.response?.status === 403) {
         setShareError('Invalid Security Code');
+      } else if (err.response?.status === 400) {
+        setShareError(err.response?.data?.detail || 'Call sign name is already in use.');
       } else {
         setShareError('Failed to generate sharing session');
       }
