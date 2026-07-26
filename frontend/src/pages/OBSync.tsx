@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Users, Navigation2, ShieldCheck, X, Activity, Map as MapIcon, Mic, MicOff, Radio, Plus, Settings } from 'lucide-react';
+import { Users, Navigation2, ShieldCheck, Activity, Map as MapIcon, Mic, MicOff, Radio, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient, baseURL } from '../api/axios';
 

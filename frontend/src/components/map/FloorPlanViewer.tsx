@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Image as ImageIcon, Map, AlertCircle } from 'lucide-react';
+import { X, Image as ImageIcon, Map } from 'lucide-react';
 
 interface FloorPlanViewerProps {
   buildingName: string;
