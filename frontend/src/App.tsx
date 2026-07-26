@@ -8,7 +8,7 @@ import { CampusAR } from './pages/CampusAR';
 import { CampusARHunt } from './pages/CampusARHunt';
 import { Buildings } from './pages/Buildings';
 import { Stalls } from './pages/Stalls';
-import { FriendSync } from './pages/FriendSync';
+import { OBSync } from './pages/OBSync';
 
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
@@ -35,7 +35,7 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/ar" element={<CampusAR />} />
               <Route path="/hunt" element={<CampusARHunt />} />
-              <Route path="/friendsync" element={<FriendSync />} />
+              <Route path="/obsync" element={<OBSync />} />
             </Routes>
           </main>
 

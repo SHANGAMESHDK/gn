@@ -4,7 +4,9 @@ import { apiClient } from '../../api/axios';
 
 
 export function GlobalBroadcast() {
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [isBroadcasting, setIsBroadcasting] = useState(() => {
+    return sessionStorage.getItem('obsync_broadcasting') === 'true';
+  });
   const [sharedCode, setSharedCode] = useState(() => {
     const id = sessionStorage.getItem('telemetry_device_id');
     return id && !id.startsWith('device_') ? id : '';
@@ -13,7 +15,7 @@ export function GlobalBroadcast() {
   // Enable telemetry only if broadcasting and they have a code
   useTelemetry(isBroadcasting && !!sharedCode); 
 
-  // Watch for changes in session storage (e.g. from FriendSync modal setting the code)
+  // Watch for changes in session storage (e.g. from OBSync modal setting the code)
   useEffect(() => {
     const interval = setInterval(() => {
       const currentId = sessionStorage.getItem('telemetry_device_id');
@@ -31,8 +33,10 @@ export function GlobalBroadcast() {
     
     if (!isBroadcasting) {
       setIsBroadcasting(true);
+      sessionStorage.setItem('obsync_broadcasting', 'true');
     } else {
       setIsBroadcasting(false);
+      sessionStorage.removeItem('obsync_broadcasting');
       try {
         await apiClient.post('/telemetry/stop', { device_id: sharedCode });
       } catch (err) {

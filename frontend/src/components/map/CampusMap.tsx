@@ -15,6 +15,8 @@ import { useLiveWeather } from '../../hooks/useLiveWeather';
 import { WeatherOverlay } from './WeatherOverlay';
 import { useTelemetry } from '../../hooks/useTelemetry';
 import { Activity } from 'lucide-react';
+import { FloorSelector } from './FloorSelector';
+import { FloorPlanViewer } from './FloorPlanViewer';
 export function CampusMap() {
   const mapRef = useRef<MapRef>(null);
   const [searchParams] = useSearchParams();
@@ -46,10 +48,12 @@ export function CampusMap() {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<any>(null);
   
-  // FriendSync states
+  // OBSync states
   const [showFriends, setShowFriends] = useState(false);
   const [activeFriends, setActiveFriends] = useState<any[]>([]);
   const [trackedFriend, setTrackedFriend] = useState<any>(null);
+
+  const [currentFloor, setCurrentFloor] = useState<string>('All');
   
   // Poll for Active Friends if toggle is ON
   useEffect(() => {
@@ -271,15 +275,15 @@ export function CampusMap() {
     }]
   }), [routeCoords]);
 
+  const [selectedBuilding, setSelectedBuilding] = useState<any>(null);
+
   const handleMapClick = (event: any) => {
     const feature = event.features && event.features[0];
     if (feature && feature.layer.id === '3d-buildings') {
-      setSelectedLocation({
-        ...feature.properties,
-        _clickedLat: event.lngLat.lat,
-        _clickedLng: event.lngLat.lng,
-      });
+      setSelectedBuilding(feature.properties);
+      setSelectedLocation(null);
     } else {
+      setSelectedBuilding(null);
       setSelectedLocation(null);
     }
   };
@@ -392,6 +396,15 @@ export function CampusMap() {
               <Layer
                 id="3d-buildings"
                 type="fill-extrusion"
+                {...(currentFloor !== 'All' && selectedBuilding 
+                  ? { 
+                      filter: [
+                        'any', 
+                        ['!=', ['get', 'Name'], selectedBuilding.Name || ''], 
+                        ['==', ['get', 'level'], currentFloor]
+                      ] 
+                    } 
+                  : {})}
                 paint={{
                   'fill-extrusion-color': weather && !weather.isDay
                     ? ['case', ['==', ['get', 'height'], 0], '#064e3b', '#1e3a8a'] // Neon dark blue for buildings at night
@@ -565,17 +578,34 @@ export function CampusMap() {
           <Activity size={24} />
         </button>
         
-        {/* FriendSync Toggle Button */}
+        {/* OBSync Toggle Button */}
         <button
           onClick={() => setShowFriends(!showFriends)}
           className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
             showFriends ? 'bg-emerald-500 text-white shadow-emerald-500/50 hover:bg-emerald-600' : 'bg-white text-slate-700 hover:bg-slate-50'
           }`}
-          title="Show Active Friends"
+          title="Show Active Office Bearers"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </button>
       </div>
+
+      {selectedBuilding && (
+        <>
+          <FloorSelector 
+            currentFloor={currentFloor} 
+            buildingName={selectedBuilding.Name || ''} 
+            onChange={setCurrentFloor} 
+          />
+          {currentFloor !== 'All' && (
+            <FloorPlanViewer 
+              buildingName={selectedBuilding.Name || 'Building'} 
+              floor={currentFloor} 
+              onClose={() => setCurrentFloor('All')} 
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

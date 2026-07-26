@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-export const baseURL = import.meta.env.VITE_API_URL || '/api';
+// Force using the local proxy to reach our new backend code
+export const baseURL = '/api';
 
 export const apiClient = axios.create({
   baseURL,
