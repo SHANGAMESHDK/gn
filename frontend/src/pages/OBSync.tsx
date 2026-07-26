@@ -53,7 +53,9 @@ export function OBSync() {
 
     // In Vite dev env with proxy, the websocket connection often works over the same port
     // But we'll rely on the standard constructed URL
-    const ws = new WebSocket(`${wsBaseUrl}/obsync/ws/${activeChannel}/${callSign}`);
+    const finalWsUrl = `${wsBaseUrl}/obsync/ws/${activeChannel}/${callSign}`;
+    console.log("Attempting Walkie Talkie connection to:", finalWsUrl);
+    const ws = new WebSocket(finalWsUrl);
     ws.binaryType = "blob";
     wsRef.current = ws;
 
