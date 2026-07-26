@@ -14,7 +14,7 @@ const DEFAULT_CHANNELS = [
 export function OBSync() {
   const navigate = useNavigate();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(!!sessionStorage.getItem('telemetry_device_id'));
+  const [isLoggedIn, setIsLoggedIn] = useState(!!sessionStorage.getItem('obsync_call_sign'));
   const [trackInput, setTrackInput] = useState('');
 
   // Share Modal (now used for login)
@@ -40,7 +40,8 @@ export function OBSync() {
   useEffect(() => {
     // Build WebSocket URL
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    let wsBaseUrl = baseURL;
+    let wsBaseUrl = baseURL.replace(/\/$/, ''); // Remove trailing slash if any
+    
     if (wsBaseUrl.startsWith('http')) {
       wsBaseUrl = wsBaseUrl.replace(/^http/, 'ws');
     } else {
