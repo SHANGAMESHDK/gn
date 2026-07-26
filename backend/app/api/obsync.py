@@ -15,6 +15,15 @@ class ConnectionManager:
         self.active_connections: Dict[str, List[tuple]] = {}
 
     async def connect(self, websocket: WebSocket, channel: str, username: str):
+        # Check uniqueness globally across all channels
+        req_name_lower = username.strip().lower()
+        for ch, connections in self.active_connections.items():
+            for conn, uname in connections:
+                if uname.strip().lower() == req_name_lower:
+                    await websocket.accept()
+                    await websocket.close(code=4000, reason="Call sign name is already in use")
+                    raise WebSocketDisconnect()
+
         await websocket.accept()
         if channel not in self.active_connections:
             self.active_connections[channel] = []

@@ -100,6 +100,14 @@ def share_location(req: ShareRequest):
     if req.admin_code != settings.get("friendsync_security_code"):
         raise HTTPException(status_code=403, detail="Invalid security code. Please check with an administrator.")
 
+    from app.api.obsync import manager
+    req_name_lower = req.name.strip().lower()
+    for channel, connections in manager.active_connections.items():
+        for _, username in connections:
+            if username.strip().lower() == req_name_lower:
+                raise HTTPException(status_code=400, detail="Call sign name is already in use by an active user.")
+
+
     data = get_friend_sessions()
     
     # Generate 6-char alphanumeric code
