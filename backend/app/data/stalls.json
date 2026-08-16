@@ -72,5 +72,19 @@
         "opening_time": "09:00",
         "closing_time": "17:00",
         "id": 6
+    },
+    {
+        "name": "Srinidhi Stall",
+        "description": "Added via Map Interface",
+        "category": "Food",
+        "building": "Custom Location",
+        "floor": 0,
+        "node_id": null,
+        "latitude": 13.032440670528427,
+        "longitude": 80.17777204513551,
+        "status": "active",
+        "opening_time": "09:00",
+        "closing_time": "17:00",
+        "id": 7
     }
 ]
