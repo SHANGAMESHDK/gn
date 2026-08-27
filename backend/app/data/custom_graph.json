@@ -241,6 +241,11 @@
             "from": 5,
             "to": 2,
             "weight": 28.829813692251555
+        },
+        {
+            "from": 33,
+            "to": 111,
+            "weight": 49.68020554798371
         }
     ],
     "overrides": {
@@ -249,5 +254,9 @@
             "lng": 80.18051862716676
         }
     },
-    "edge_overrides": {}
+    "edge_overrides": {
+        "24-33": {
+            "deleted": true
+        }
+    }
 }

@@ -1,49 +1,178 @@
 @import "tailwindcss";
 
+/* ── SRM Easwari Brand Tokens ── */
+:root {
+  --maroon: #7B1113;
+  --maroon-light: #9B1B30;
+  --maroon-dark: #5a0c0e;
+  --gold: #C8A951;
+  --gold-light: #dcc06e;
+  --gold-dark: #a68b3a;
+  --cream: #faf6ed;
+  --brand-gradient: linear-gradient(135deg, #7B1113 0%, #9B1B30 50%, #C8A951 100%);
+  --brand-gradient-subtle: linear-gradient(135deg, rgba(123,17,19,0.06) 0%, rgba(200,169,81,0.06) 100%);
+  --glass-bg: rgba(255,255,255,0.65);
+  --glass-border: rgba(200,169,81,0.15);
+  --glass-shadow: 0 8px 32px rgba(123,17,19,0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-bg: rgba(26,10,14,0.65);
+    --glass-border: rgba(200,169,81,0.12);
+    --glass-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+}
+
+/* ── Base Reset ── */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  color: #1a1a1a;
-  background-color: #f8fafc;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  color: #2d2019;
+  background-color: #faf8f4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @media (prefers-color-scheme: dark) {
   html, body, #root {
-    color: #f8fafc;
-    background-color: #0f172a;
+    color: #f0e8dc;
+    background-color: #110810;
   }
 }
 
-/* Cinematic Rain Effect */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', 'DM Sans', serif;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(123,17,19,0.25); border-radius: 100px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(123,17,19,0.4); }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Glass ── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-strong {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(40px) saturate(2);
+  -webkit-backdrop-filter: blur(40px) saturate(2);
+  border: 1px solid rgba(200,169,81,0.2);
+  box-shadow: 0 12px 40px rgba(123,17,19,0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-strong {
+    background: rgba(26,10,14,0.85);
+    border-color: rgba(200,169,81,0.15);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+}
+
+/* ── Keyframe Animations ── */
+@keyframes fade-in {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-6px) rotate(0.5deg); }
+  66% { transform: translateY(-3px) rotate(-0.5deg); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* ── Animation Utilities ── */
+.animate-fade-in { animation: fade-in 0.5s ease-out both; }
+.animate-slide-up { animation: slide-up 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-slide-down { animation: slide-down 0.5s ease-out both; }
+.animate-scale-in { animation: scale-in 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-float { animation: float 5s ease-in-out infinite; }
+.animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
+.animate-gradient-flow { background-size: 200% 200%; animation: gradient-flow 5s ease infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(200,169,81,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+/* ── Delay Utilities ── */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* ── Gradient Text ── */
+.gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Rain Effect ── */
 .rain-container {
-  background: linear-gradient(to bottom, rgba(15,23,42,0) 0%, rgba(15,23,42,0.2) 100%);
+  background: linear-gradient(to bottom, rgba(26,10,14,0) 0%, rgba(26,10,14,0.2) 100%);
 }
-
 .rain-drop {
-  position: absolute;
-  top: -20px;
-  width: 2px;
-  height: 40px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 100%);
-  animation: rain linear infinite;
-  border-radius: 50%;
+  position: absolute; top: -20px; width: 2px; height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%);
+  animation: rain linear infinite; border-radius: 50%;
+}
+@keyframes rain {
+  0% { transform: translateY(0) scaleY(1); opacity: 0; }
+  10% { opacity: 1; } 90% { opacity: 1; }
+  100% { transform: translateY(100vh) scaleY(1.5); opacity: 0; }
 }
 
-@keyframes rain {
-  0% {
-    transform: translateY(0) scaleY(1);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) scaleY(1.5);
-    opacity: 0;
+/* ── Subtle Pattern ── */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(123,17,19,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+@media (prefers-color-scheme: dark) {
+  .dot-grid {
+    background-image: radial-gradient(circle, rgba(200,169,81,0.06) 1px, transparent 1px);
   }
 }
+
+/* ── Safe Area ── */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }

@@ -10,11 +10,11 @@ import { useNavigationDirections, calculateBearing } from '../../hooks/useNaviga
 import { LiveNavigationPanel } from './LiveNavigationPanel';
 import { RouteDirectionsList } from './RouteDirectionsList';
 import { WalkingBoyAvatar } from './WalkingBoyAvatar';
-import { DetailModal } from '../common/DetailModal';
+import { BuildingSidebar } from './BuildingSidebar';
 import { useLiveWeather } from '../../hooks/useLiveWeather';
 import { WeatherOverlay } from './WeatherOverlay';
 import { useTelemetry } from '../../hooks/useTelemetry';
-import { Activity } from 'lucide-react';
+import { Activity, Thermometer } from 'lucide-react';
 import { FloorSelector } from './FloorSelector';
 import { FloorPlanViewer } from './FloorPlanViewer';
 export function CampusMap() {
@@ -38,23 +38,23 @@ export function CampusMap() {
   const [buildingsGeoJSON, setBuildingsGeoJSON] = useState<any>(null);
   const [resolvedDestinationNodeId, setResolvedDestinationNodeId] = useState<string | null>(destinationNodeIdParam);
 
-  // Modal State
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  // Occupancy mode
+  const [showOccupancy, setShowOccupancy] = useState(false);
 
   const { currentInstruction, cameraBearing } = useNavigationDirections(gps.latitude, gps.longitude, routeData);
   const weather = useLiveWeather(initialCenter[1], initialCenter[0]);
-  
+
   useTelemetry(false); // GlobalBroadcast handles this now
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<any>(null);
-  
+
   // OBSync states
   const [showFriends, setShowFriends] = useState(false);
   const [activeFriends, setActiveFriends] = useState<any[]>([]);
   const [trackedFriend, setTrackedFriend] = useState<any>(null);
 
   const [currentFloor, setCurrentFloor] = useState<string>('All');
-  
+
   // Poll for Active Friends if toggle is ON
   useEffect(() => {
     if (!showFriends) {
@@ -77,7 +77,7 @@ export function CampusMap() {
   // Poll for specific Tracked friend if trackCode is set
   useEffect(() => {
     if (!trackCode) return;
-    
+
     // Automatically stop following GPS and start following friend
     setFollowMe(false);
 
@@ -117,7 +117,7 @@ export function CampusMap() {
 
   useEffect(() => {
     if (!showHeatmap) return;
-    
+
     const fetchHeatmap = async () => {
       try {
         const res = await apiClient.get('/telemetry/heatmap');
@@ -276,31 +276,49 @@ export function CampusMap() {
   }), [routeCoords]);
 
   const [selectedBuilding, setSelectedBuilding] = useState<any>(null);
+  const [buildingListData, setBuildingListData] = useState<any[]>([]);
+
+  // Fetch building list data (includes live_occupancy from the list endpoint)
+  useEffect(() => {
+    async function fetchBuildingList() {
+      try {
+        const res = await apiClient.get('/buildings/');
+        setBuildingListData(res.data.buildings || []);
+      } catch (e) {
+        console.warn('Failed to fetch building list', e);
+      }
+    }
+    fetchBuildingList();
+  }, []);
 
   const handleMapClick = (event: any) => {
     const feature = event.features && event.features[0];
     if (feature && feature.layer.id === '3d-buildings') {
-      setSelectedBuilding(feature.properties);
-      setSelectedLocation(null);
+      const props = { ...feature.properties };
+      // Enrich with occupancy from building list data
+      const match = buildingListData.find(
+        (b: any) => (b.name || '').toLowerCase() === (props.Name || '').toLowerCase()
+      );
+      if (match) {
+        if (!props.live_occupancy) props.live_occupancy = match.live_occupancy;
+        if (!props.description && match.description) props.description = match.description;
+        if (!props.cover_photo && match.cover_photo) props.cover_photo = match.cover_photo;
+        if (!props.node_id && match.node_id) props.node_id = match.node_id;
+      }
+      setSelectedBuilding(props);
     } else {
       setSelectedBuilding(null);
-      setSelectedLocation(null);
     }
   };
 
   return (
     <div className="w-full h-full flex flex-col relative flex-1">
 
-      {/* Detail Modal */}
-      <DetailModal
-        isOpen={!!selectedLocation}
-        onClose={() => setSelectedLocation(null)}
-        title={selectedLocation?.Name || 'Building'}
-        description={selectedLocation?.description}
-        coverPhoto={selectedLocation?.cover_photo}
-        destinationNodeId={selectedLocation?.node_id}
-        destinationLat={selectedLocation?._clickedLat}
-        destinationLng={selectedLocation?._clickedLng}
+      {/* Smart Building Sidebar */}
+      <BuildingSidebar
+        isOpen={!!selectedBuilding}
+        onClose={() => setSelectedBuilding(null)}
+        buildingData={selectedBuilding}
       />
 
       {sourceNodeId === 'gps' && routeData ? (
@@ -396,22 +414,30 @@ export function CampusMap() {
               <Layer
                 id="3d-buildings"
                 type="fill-extrusion"
-                {...(currentFloor !== 'All' && selectedBuilding 
-                  ? { 
-                      filter: [
-                        'any', 
-                        ['!=', ['get', 'Name'], selectedBuilding.Name || ''], 
-                        ['==', ['get', 'level'], currentFloor]
-                      ] 
-                    } 
+                {...(currentFloor !== 'All' && selectedBuilding
+                  ? {
+                    filter: [
+                      'any',
+                      ['!=', ['get', 'Name'], selectedBuilding.Name || ''],
+                      ['==', ['get', 'level'], currentFloor]
+                    ]
+                  }
                   : {})}
                 paint={{
-                  'fill-extrusion-color': weather && !weather.isDay
-                    ? ['case', ['==', ['get', 'height'], 0], '#064e3b', '#1e3a8a'] // Neon dark blue for buildings at night
-                    : ['get', 'color'],
+                  'fill-extrusion-color': showOccupancy
+                    ? [
+                        'interpolate', ['linear'], ['get', 'live_occupancy'],
+                        0, '#10b981',
+                        40, '#f59e0b',
+                        75, '#ef4444',
+                        100, '#991b1b'
+                      ]
+                    : weather && !weather.isDay
+                      ? ['case', ['==', ['get', 'height'], 0], '#064e3b', '#1e3a8a']
+                      : ['get', 'color'],
                   'fill-extrusion-height': ['get', 'height'],
                   'fill-extrusion-base': ['get', 'base_height'],
-                  'fill-extrusion-opacity': weather && !weather.isDay ? 0.7 : 0.9
+                  'fill-extrusion-opacity': showOccupancy ? 0.8 : (weather && !weather.isDay ? 0.55 : 0.55)
                 }}
               />
               {/* Building Labels Layer */}
@@ -439,9 +465,9 @@ export function CampusMap() {
                 id="route-line"
                 type="line"
                 paint={{
-                  'line-color': '#ef4444',
-                  'line-width': 8,
-                  'line-opacity': 0.8
+                  'line-color': '#7B1113',
+                  'line-width': 6,
+                  'line-opacity': 0.9
                 }}
               />
             </Source>
@@ -508,7 +534,7 @@ export function CampusMap() {
               anchor="center"
               rotationAlignment="map"
             >
-              <div 
+              <div
                 className="relative group hover:z-50 cursor-pointer"
                 onClick={() => navigate(`/map?track=${friend.code}`)}
               >
@@ -549,7 +575,7 @@ export function CampusMap() {
               });
             }
           }}
-          className={`absolute bottom-28 right-4 md:bottom-8 md:right-4 z-[1000] p-4 rounded-full shadow-lg transition-all ${followMe ? 'bg-blue-600 text-white shadow-blue-500/50' : 'bg-white text-slate-700 hover:bg-slate-50'}`}
+          className={`absolute bottom-28 right-4 md:bottom-8 md:right-4 z-[1000] p-4 rounded-full shadow-lg transition-all ${followMe ? 'bg-[#7B1113] text-white shadow-[#7B1113]/50' : 'bg-white/90 backdrop-blur text-slate-700 hover:bg-white border border-white/20'}`}
           title="Follow my location"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M2 12h2" /><path d="M20 12h2" /><circle cx="12" cy="12" r="4" /></svg>
@@ -557,51 +583,62 @@ export function CampusMap() {
       )}
 
       {/* Map Floating Actions */}
-      <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[1000] flex flex-col gap-3">
+      <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[1000] flex flex-col gap-2.5">
         {/* AR Mode Button */}
         <button
           onClick={() => navigate('/ar')}
-          className="bg-white text-slate-700 p-3 rounded-full shadow-lg hover:bg-slate-50 transition-all flex items-center justify-center"
+          className="bg-white/90 backdrop-blur text-slate-700 p-3 rounded-full shadow-lg hover:bg-white transition-all flex items-center justify-center border border-white/20"
           title="Enter AR Mode"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+        </button>
+
+        {/* Occupancy Mode Toggle */}
+        <button
+          onClick={() => setShowOccupancy(!showOccupancy)}
+          className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
+            showOccupancy ? 'bg-[#7B1113] text-white shadow-[#7B1113]/50' : 'bg-white/90 backdrop-blur text-slate-700 hover:bg-white border border-white/20'
+          }`}
+          title="Toggle Building Occupancy View"
+        >
+          <Thermometer size={22} />
         </button>
 
         {/* Live Heatmap Toggle Button */}
         <button
           onClick={() => setShowHeatmap(!showHeatmap)}
           className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
-            showHeatmap ? 'bg-orange-500 text-white shadow-orange-500/50 hover:bg-orange-600' : 'bg-white text-slate-700 hover:bg-slate-50'
+            showHeatmap ? 'bg-[#C8A951] text-[#2d2019] shadow-[#C8A951]/40' : 'bg-white/90 backdrop-blur text-slate-700 hover:bg-white border border-white/20'
           }`}
-          title="Toggle Live Activity Heatmap"
+          title="Toggle People Heatmap"
         >
-          <Activity size={24} />
+          <Activity size={22} />
         </button>
-        
+
         {/* OBSync Toggle Button */}
         <button
           onClick={() => setShowFriends(!showFriends)}
           className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
-            showFriends ? 'bg-emerald-500 text-white shadow-emerald-500/50 hover:bg-emerald-600' : 'bg-white text-slate-700 hover:bg-slate-50'
+            showFriends ? 'bg-emerald-500 text-white shadow-emerald-500/50' : 'bg-white/90 backdrop-blur text-slate-700 hover:bg-white border border-white/20'
           }`}
           title="Show Active Office Bearers"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
         </button>
       </div>
 
       {selectedBuilding && (
         <>
-          <FloorSelector 
-            currentFloor={currentFloor} 
-            buildingName={selectedBuilding.Name || ''} 
-            onChange={setCurrentFloor} 
+          <FloorSelector
+            currentFloor={currentFloor}
+            buildingName={selectedBuilding.Name || ''}
+            onChange={setCurrentFloor}
           />
           {currentFloor !== 'All' && (
-            <FloorPlanViewer 
-              buildingName={selectedBuilding.Name || 'Building'} 
-              floor={currentFloor} 
-              onClose={() => setCurrentFloor('All')} 
+            <FloorPlanViewer
+              buildingName={selectedBuilding.Name || 'Building'}
+              floor={currentFloor}
+              onClose={() => setCurrentFloor('All')}
             />
           )}
         </>

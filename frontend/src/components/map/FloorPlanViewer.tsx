@@ -17,44 +17,44 @@ export const FloorPlanViewer: React.FC<FloorPlanViewerProps> = ({ buildingName, 
   const imageUrl = `/floorplans/${safeBuildingName}_${floor}.png`;
 
   return (
-    <div className="fixed inset-x-4 bottom-4 md:inset-auto md:top-24 md:right-4 z-[2000] md:w-[400px] lg:w-[500px] bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-10 md:slide-in-from-right-10 duration-300">
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] z-[7000] md:w-[400px] lg:w-[500px] bg-[#110810]/95 backdrop-blur-xl border border-[#C8A951]/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
       
       {/* Header */}
-      <div className="p-4 border-b border-slate-700/50 flex items-center justify-between bg-gradient-to-r from-blue-900/50 to-indigo-900/50">
+      <div className="p-4 border-b border-[#C8A951]/20 flex items-center justify-between bg-gradient-to-r from-[#7B1113]/80 to-[#4A0A0B]/80">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+          <div className="p-2 bg-black/20 rounded-lg text-[#C8A951]">
             <Map size={20} />
           </div>
           <div>
-            <h3 className="text-white font-bold text-sm truncate max-w-[200px]">{buildingName}</h3>
-            <p className="text-blue-300 text-xs font-medium">Floor: {floor}</p>
+            <h3 className="text-white font-bold text-sm truncate max-w-[200px]" style={{ fontFamily: "'Playfair Display', serif" }}>{buildingName}</h3>
+            <p className="text-[#C8A951] text-xs font-medium tracking-wide">Floor: {floor}</p>
           </div>
         </div>
         <button 
           onClick={onClose}
-          className="p-2 bg-slate-800/50 hover:bg-slate-700 text-slate-300 hover:text-white rounded-full transition-colors"
+          className="p-2 bg-black/30 hover:bg-black/50 text-[#f0e8dc] hover:text-white rounded-full transition-colors"
         >
           <X size={18} />
         </button>
       </div>
 
       {/* Image Viewer */}
-      <div className="relative w-full h-[300px] md:h-[400px] bg-slate-950 flex items-center justify-center p-4 overflow-auto">
+      <div className="relative w-full h-[300px] md:h-[400px] bg-gradient-to-br from-[#1a0a0e] to-[#110810] flex items-center justify-center p-4 overflow-auto">
         {!hasError ? (
           <img 
             src={imageUrl}
             alt={`${buildingName} Floor ${floor}`}
             onError={() => setHasError(true)}
-            className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-slate-800"
+            className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-[#C8A951]/10"
           />
         ) : (
-          <div className="flex flex-col items-center justify-center text-slate-500 gap-4 text-center p-6">
-            <div className="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center border border-slate-800">
-              <ImageIcon size={32} className="opacity-50" />
+          <div className="flex flex-col items-center justify-center text-[#a09080] gap-4 text-center p-6">
+            <div className="w-16 h-16 rounded-2xl bg-black/30 flex items-center justify-center border border-[#C8A951]/10">
+              <ImageIcon size={32} className="opacity-50 text-[#C8A951]" />
             </div>
             <div>
-              <p className="font-bold text-slate-400 mb-1">No Floor Plan Found</p>
-              <p className="text-xs">Please add an image at <br/><code className="text-orange-400/70 bg-orange-400/10 px-2 py-1 rounded mt-2 inline-block">{imageUrl}</code></p>
+              <p className="font-bold text-[#f0e8dc] mb-1">No Floor Plan Found</p>
+              <p className="text-xs">Please add an image at <br/><code className="text-[#C8A951] bg-[#C8A951]/10 px-2 py-1 rounded mt-2 inline-block shadow-inner">{imageUrl}</code></p>
             </div>
           </div>
         )}

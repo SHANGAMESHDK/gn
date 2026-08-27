@@ -10,23 +10,26 @@ export function WeatherOverlay({ weather }: WeatherOverlayProps) {
   if (!weather) return null;
 
   const getWeatherIcon = () => {
-    if (weather.isRaining) return <CloudRain size={20} className="text-blue-400" />;
-    if (weather.weatherCode > 0 && weather.weatherCode < 50) return <Cloud size={20} className="text-slate-400" />;
-    return weather.isDay ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-indigo-300" />;
+    if (weather.isRaining) return <CloudRain size={18} className="text-blue-400" />;
+    if (weather.weatherCode > 0 && weather.weatherCode < 50) return <Cloud size={18} className="text-[#a09080]" />;
+    return weather.isDay ? <Sun size={18} className="text-[#C8A951]" /> : <Moon size={18} className="text-indigo-300" />;
   };
 
   return (
     <>
       {/* Weather Widget */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full py-2 px-4 shadow-lg flex items-center gap-3">
-        <div className="flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-full p-2">
+      <div
+        className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] rounded-full py-2 px-4 shadow-lg flex items-center gap-3 border border-[#C8A951]/10"
+        style={{ background: 'rgba(26,10,14,0.85)', backdropFilter: 'blur(16px)' }}
+      >
+        <div className="flex items-center justify-center bg-[#7B1113]/30 rounded-full p-2">
           {getWeatherIcon()}
         </div>
         <div>
-          <div className="text-sm font-bold text-slate-800 dark:text-slate-100">
+          <div className="text-sm font-bold text-[#f0e8dc]">
             {Math.round(weather.temperature)}°C
           </div>
-          <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          <div className="text-[10px] font-bold text-[#8a7a6a] uppercase tracking-wider">
             {weather.isRaining ? 'Raining' : weather.isDay ? 'Daytime' : 'Nighttime'}
           </div>
         </div>
@@ -36,8 +39,8 @@ export function WeatherOverlay({ weather }: WeatherOverlayProps) {
       {weather.isRaining && (
         <div className="absolute inset-0 pointer-events-none z-[500] overflow-hidden rain-container">
           {Array.from({ length: 100 }).map((_, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="rain-drop"
               style={{
                 left: `${Math.random() * 100}%`,

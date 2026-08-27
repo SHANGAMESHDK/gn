@@ -5,6 +5,8 @@ import geopandas as gpd
 from pathlib import Path
 import json
 import math
+import hashlib
+import time
 from shapely.geometry import Polygon, MultiPolygon, Point
 from app.core.graph_loader import graph_manager
 from app.core.graph_builder import CUSTOM_GRAPH_JSON
@@ -33,6 +35,11 @@ def get_buildings():
                 if "description" in ov: bldg["description"] = ov["description"]
                 if "cover_photo" in ov: bldg["cover_photo"] = ov["cover_photo"]
                 if "Name" in ov: bldg["name"] = ov["Name"]
+
+            # Simulate deterministic live occupancy (0-100) based on building name + hour
+            current_hour = int(time.time() / 3600)
+            hash_input = f'{bldg.get("name", "")}_{current_hour}'.encode('utf-8')
+            bldg["live_occupancy"] = int(hashlib.md5(hash_input).hexdigest()[:4], 16) % 101
                 
         jsonable_encoder(b) # test if encoder crashes
         return {
@@ -209,6 +216,12 @@ def get_buildings_geojson():
                 if "walkable" in ov: props["walkable"] = ov["walkable"]
                 if "description" in ov: props["description"] = ov["description"]
                 if "cover_photo" in ov: props["cover_photo"] = ov["cover_photo"]
+
+            # Simulate live occupancy for GeoJSON (used by 3D color-coding)
+            current_hour = int(time.time() / 3600)
+            bname = props.get("Name") or ""
+            hash_input = f'{bname}_{current_hour}'.encode('utf-8')
+            props["live_occupancy"] = int(hashlib.md5(hash_input).hexdigest()[:4], 16) % 101
                 
         return features_dict
     except Exception as e:

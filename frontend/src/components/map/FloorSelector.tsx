@@ -46,18 +46,18 @@ export const FloorSelector: React.FC<FloorSelectorProps> = ({ currentFloor, buil
   floors.push('G');
 
   return (
-    <div className="absolute bottom-28 left-4 md:bottom-8 z-[1000] bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center p-2 gap-2 transition-all">
-      <div className="p-2 text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700 mb-1">
-        <Layers size={20} />
+    <div className="absolute top-[35%] md:top-auto -translate-y-1/2 left-2 md:left-4 md:translate-y-0 md:bottom-8 z-[6500] bg-white/90 dark:bg-[#110810]/90 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 dark:border-[#C8A951]/20 flex flex-col items-center p-1.5 md:p-2 gap-1 md:gap-2 transition-all">
+      <div className="p-1 md:p-2 text-[#7B1113] dark:text-[#C8A951] border-b border-slate-200 dark:border-[#C8A951]/20 mb-1">
+        <Layers size={18} className="md:w-5 md:h-5" />
       </div>
       {floors.map(floor => (
         <button
           key={floor}
           onClick={() => onChange(floor)}
-          className={`w-10 h-10 rounded-xl font-bold transition-all flex items-center justify-center ${
+          className={`w-8 h-8 md:w-10 md:h-10 rounded-xl font-bold transition-all flex items-center justify-center text-xs md:text-sm ${
             currentFloor === floor
-              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-110'
-              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              ? 'bg-[#7B1113] text-white shadow-md shadow-[#7B1113]/30 scale-110'
+              : 'text-slate-600 dark:text-[#f0e8dc] hover:bg-slate-100 dark:hover:bg-white/10'
           }`}
         >
           {floor}
