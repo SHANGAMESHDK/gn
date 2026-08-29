@@ -1,4 +1,4 @@
-import { Map as MapIcon, Home, Building, Store, Users } from 'lucide-react';
+import { Map as MapIcon, Home, Building, Store, Users, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export function Navbar() {
@@ -8,6 +8,7 @@ export function Navbar() {
     { to: '/buildings', icon: Building, label: 'Buildings' },
     { to: '/stalls', icon: Store, label: 'Stalls' },
     { to: '/obsync', icon: Users, label: 'OBSync' },
+    { to: '/admin', icon: Settings, label: 'Admin' },
   ];
 
   return (

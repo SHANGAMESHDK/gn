@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 interface LocationState {
   latitude: number | null;
   longitude: number | null;
+  altitude: number | null;
   accuracy: number | null;
   error: string | null;
   loading: boolean;
@@ -29,6 +30,7 @@ export function useGeolocation() {
   const [state, setState] = useState<LocationState>({
     latitude: null,
     longitude: null,
+    altitude: null,
     accuracy: null,
     error: null,
     loading: true,
@@ -57,6 +59,7 @@ export function useGeolocation() {
         return {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
+          altitude: 0, // Z-level identified and nullified
           accuracy: position.coords.accuracy,
           error: null,
           loading: false,

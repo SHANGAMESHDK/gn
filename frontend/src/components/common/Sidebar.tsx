@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Map, Glasses, Building, Store, Users, GraduationCap } from 'lucide-react';
+import { Home, Map, Glasses, Building, Store, Users, GraduationCap, Settings } from 'lucide-react';
 
 export function Sidebar() {
   const navItems = [
@@ -9,6 +9,7 @@ export function Sidebar() {
     { to: '/stalls', icon: Store, label: 'Stalls' },
     { to: '/ar', icon: Glasses, label: 'AR Mode' },
     { to: '/obsync', icon: Users, label: 'OB Sync' },
+    { to: '/admin', icon: Settings, label: 'Admin' },
   ];
 
   return (
