@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useWebcam } from '../hooks/useWebcam';
 import { useDeviceOrientation } from '../hooks/useDeviceOrientation';
 import { calculateBearing } from '../hooks/useNavigationDirections';
-import { NavigationAPI } from '../api';
+import { NavigationAPI, AdminAPI } from '../api';
 
 interface ARPoi {
   id: string;
@@ -62,6 +62,63 @@ export function CampusAR() {
 
   const activeLat = simulationMode ? SIMULATED_LAT : latitude;
   const activeLng = simulationMode ? SIMULATED_LNG : longitude;
+
+  const [buildingListData, setBuildingListData] = useState<any[]>([]);
+  const [proximityThreshold, setProximityThreshold] = useState(25);
+  const [currentBlockName, setCurrentBlockName] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBuildingList() {
+      try {
+        const res = await apiClient.get('/buildings/');
+        setBuildingListData(res.data.buildings || []);
+      } catch (e) {
+        console.warn('Failed to fetch building list', e);
+      }
+    }
+    async function fetchSettings() {
+      try {
+        const res = await AdminAPI.getSettings();
+        if (res?.building_proximity_threshold) {
+          setProximityThreshold(res.building_proximity_threshold);
+        }
+      } catch (e) {
+        console.warn("Failed to fetch settings for proximity threshold");
+      }
+    }
+    fetchBuildingList();
+    fetchSettings();
+  }, []);
+
+  // Proximity Calculation
+  useEffect(() => {
+    if (!activeLat || !activeLng || buildingListData.length === 0) return;
+
+    let nearestBlock = null;
+    let minDistance = Infinity;
+
+    for (const building of buildingListData) {
+      if (building.latitude && building.longitude) {
+        const dist = getDistanceFromLatLonInM(activeLat, activeLng, building.latitude, building.longitude);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestBlock = building.name || building.Name;
+        }
+      } else if (building.lat && building.lng) {
+        const dist = getDistanceFromLatLonInM(activeLat, activeLng, building.lat, building.lng);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestBlock = building.name || building.Name;
+        }
+      }
+    }
+
+    if (minDistance <= proximityThreshold) {
+      setCurrentBlockName(nearestBlock);
+    } else {
+      setCurrentBlockName(null);
+    }
+  }, [activeLat, activeLng, buildingListData, proximityThreshold]);
 
   useEffect(() => {
     if (activeLat && activeLng) {
@@ -155,6 +212,15 @@ export function CampusAR() {
           )}
         </div>
       </div>
+
+      {currentBlockName && (
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[100] pointer-events-none">
+          <div className="bg-[#7B1113]/90 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 backdrop-blur-md border border-white/20 animate-fade-in-down">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#C8A951]"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            You are in {currentBlockName} Block
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-slate-900/80 text-white px-6 py-3 rounded-full font-bold backdrop-blur flex items-center gap-3">

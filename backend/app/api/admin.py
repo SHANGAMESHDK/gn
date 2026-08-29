@@ -19,14 +19,23 @@ SETTINGS_JSON = Path(__file__).resolve().parents[1] / "data" / "settings.json"
 
 def load_settings():
     if not SETTINGS_JSON.exists():
-        default_settings = {"friendsync_security_code": "ADMIN123"}
+        default_settings = {
+            "friendsync_security_code": "ADMIN123",
+            "building_proximity_threshold": 25
+        }
         save_settings(default_settings)
         return default_settings
     with open(SETTINGS_JSON, "r") as f:
         try:
-            return json.load(f)
+            data = json.load(f)
+            if "building_proximity_threshold" not in data:
+                data["building_proximity_threshold"] = 25
+            return data
         except:
-            return {"friendsync_security_code": "ADMIN123"}
+            return {
+                "friendsync_security_code": "ADMIN123",
+                "building_proximity_threshold": 25
+            }
 
 def save_settings(data):
     SETTINGS_JSON.parent.mkdir(parents=True, exist_ok=True)

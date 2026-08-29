@@ -3,10 +3,10 @@ import { apiClient } from '../../api/axios';
 import Map, { Source, Layer, Marker } from 'react-map-gl/maplibre';
 import type { MapRef } from 'react-map-gl/maplibre';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { NavigationAPI } from '../../api';
+import { NavigationAPI, AdminAPI } from '../../api';
 import { RoutePlanner } from './RoutePlanner';
 import { useGeolocation } from '../../hooks/useGeolocation';
-import { useNavigationDirections, calculateBearing } from '../../hooks/useNavigationDirections';
+import { useNavigationDirections, calculateBearing, calculateDistance } from '../../hooks/useNavigationDirections';
 import { LiveNavigationPanel } from './LiveNavigationPanel';
 import { RouteDirectionsList } from './RouteDirectionsList';
 import { WalkingBoyAvatar } from './WalkingBoyAvatar';
@@ -14,7 +14,7 @@ import { BuildingSidebar } from './BuildingSidebar';
 import { useLiveWeather } from '../../hooks/useLiveWeather';
 import { WeatherOverlay } from './WeatherOverlay';
 import { useTelemetry } from '../../hooks/useTelemetry';
-import { Activity, Thermometer } from 'lucide-react';
+import { Activity, Thermometer, MapPin } from 'lucide-react';
 import { FloorSelector } from './FloorSelector';
 import { FloorPlanViewer } from './FloorPlanViewer';
 export function CampusMap() {
@@ -54,6 +54,23 @@ export function CampusMap() {
   const [trackedFriend, setTrackedFriend] = useState<any>(null);
 
   const [currentFloor, setCurrentFloor] = useState<string>('All');
+  
+  const [proximityThreshold, setProximityThreshold] = useState(25);
+  const [currentBlockName, setCurrentBlockName] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await AdminAPI.getSettings();
+        if (res?.building_proximity_threshold) {
+          setProximityThreshold(res.building_proximity_threshold);
+        }
+      } catch (e) {
+        console.warn("Failed to fetch settings for proximity threshold");
+      }
+    }
+    fetchSettings();
+  }, []);
 
   // Poll for Active Friends if toggle is ON
   useEffect(() => {
@@ -291,6 +308,36 @@ export function CampusMap() {
     fetchBuildingList();
   }, []);
 
+  // Proximity Calculation
+  useEffect(() => {
+    if (!gps.latitude || !gps.longitude || buildingListData.length === 0) return;
+
+    let nearestBlock = null;
+    let minDistance = Infinity;
+
+    for (const building of buildingListData) {
+      if (building.latitude && building.longitude) {
+        const dist = calculateDistance(gps.latitude, gps.longitude, building.latitude, building.longitude);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestBlock = building.name || building.Name;
+        }
+      } else if (building.lat && building.lng) {
+        const dist = calculateDistance(gps.latitude, gps.longitude, building.lat, building.lng);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestBlock = building.name || building.Name;
+        }
+      }
+    }
+
+    if (minDistance <= proximityThreshold) {
+      setCurrentBlockName(nearestBlock);
+    } else {
+      setCurrentBlockName(null);
+    }
+  }, [gps.latitude, gps.longitude, buildingListData, proximityThreshold]);
+
   const handleMapClick = (event: any) => {
     const feature = event.features && event.features[0];
     if (feature && feature.layer.id === '3d-buildings') {
@@ -320,6 +367,15 @@ export function CampusMap() {
         onClose={() => setSelectedBuilding(null)}
         buildingData={selectedBuilding}
       />
+
+      {currentBlockName && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] pointer-events-none">
+          <div className="bg-[#7B1113]/90 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 backdrop-blur-sm border border-white/20 animate-fade-in-down">
+            <MapPin size={18} className="text-[#C8A951]" />
+            You are in {currentBlockName} Block
+          </div>
+        </div>
+      )}
 
       {sourceNodeId === 'gps' && routeData ? (
         <LiveNavigationPanel routeData={routeData} destination={destination} instruction={currentInstruction} />

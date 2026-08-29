@@ -22,6 +22,7 @@ export function Admin() {
   const [authError, setAuthError] = useState('');
   
   const [securityCodeInput, setSecurityCodeInput] = useState('');
+  const [proximityThresholdInput, setProximityThresholdInput] = useState(25);
   const [savingSettings, setSavingSettings] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -47,6 +48,7 @@ export function Admin() {
       setStalls(stallsData.stalls || []);
       setBuildings(buildingsData.buildings || []);
       setSecurityCodeInput(settingsData?.friendsync_security_code || '');
+      setProximityThresholdInput(settingsData?.building_proximity_threshold ?? 25);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch admin data from backend.');
@@ -76,7 +78,10 @@ export function Admin() {
   async function handleSaveSettings() {
     setSavingSettings(true);
     try {
-      await AdminAPI.updateSettings({ friendsync_security_code: securityCodeInput });
+      await AdminAPI.updateSettings({ 
+        friendsync_security_code: securityCodeInput,
+        building_proximity_threshold: Number(proximityThresholdInput)
+      });
       alert("Settings saved successfully!");
       await loadData();
     } catch (err: any) {
@@ -233,6 +238,35 @@ export function Admin() {
                 placeholder="Security Code"
                 className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono font-bold uppercase"
               />
+              <button 
+                onClick={handleSaveSettings}
+                disabled={savingSettings}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm rounded-lg transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
+              >
+                {savingSettings ? <RefreshCw size={16} className="animate-spin" /> : <Lock size={16} />}
+                Save
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                <MapPin size={24} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-white">Building Proximity Threshold</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Radius in meters to trigger 'You are in X Block' notification.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <input 
+                type="number" 
+                value={proximityThresholdInput}
+                onChange={e => setProximityThresholdInput(Number(e.target.value))}
+                className="w-24 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono font-bold"
+              />
+              <span className="text-slate-500 font-medium mr-2">meters</span>
               <button 
                 onClick={handleSaveSettings}
                 disabled={savingSettings}
