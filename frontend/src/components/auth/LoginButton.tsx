@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { signInWithPopup, signOut, onAuthStateChanged, type User } from 'firebase/auth';
 import { auth, googleProvider } from '../../services/firebase';
-import { LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon } from 'lucide-react';
 
 export function LoginButton() {
   const [user, setUser] = useState<User | null>(null);
