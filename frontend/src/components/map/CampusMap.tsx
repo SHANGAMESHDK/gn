@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
+import { collection, addDoc, onSnapshot, query } from 'firebase/firestore';
+import { db, auth } from '../../services/firebase';
 import { apiClient } from '../../api/axios';
 import Map, { Source, Layer, Marker } from 'react-map-gl/maplibre';
 import type { MapRef } from 'react-map-gl/maplibre';
@@ -57,6 +59,21 @@ export function CampusMap() {
   
   const [proximityThreshold, setProximityThreshold] = useState(25);
   const [currentBlockName, setCurrentBlockName] = useState<string | null>(null);
+
+  // Spatial Journal States
+  const [memories, setMemories] = useState<any[]>([]);
+  const [newMemoryLocation, setNewMemoryLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [newMemoryText, setNewMemoryText] = useState('');
+  const [tagging, setTagging] = useState(false);
+
+  useEffect(() => {
+    const q = query(collection(db, 'memories'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const mems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setMemories(mems);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     async function fetchSettings() {
@@ -358,6 +375,42 @@ export function CampusMap() {
     }
   };
 
+  const handleMapContextMenu = (event: any) => {
+    event.preventDefault();
+    if (!auth.currentUser) {
+      alert("Please sign in using the sidebar to drop a memory!");
+      return;
+    }
+    setNewMemoryLocation({ lng: event.lngLat.lng, lat: event.lngLat.lat });
+  };
+
+  const submitMemory = async () => {
+    if (!newMemoryText.trim() || !newMemoryLocation || !auth.currentUser) return;
+    setTagging(true);
+    try {
+      // Get AI Tag
+      const res = await apiClient.post('/ai/tag-memory', { memory_text: newMemoryText });
+      const tag = res.data.tag;
+
+      // Save to Firestore
+      await addDoc(collection(db, 'memories'), {
+        text: newMemoryText,
+        lat: newMemoryLocation.lat,
+        lng: newMemoryLocation.lng,
+        tag: tag,
+        userId: auth.currentUser.uid,
+        userName: auth.currentUser.displayName || 'Anonymous Student',
+        createdAt: new Date().toISOString()
+      });
+      setNewMemoryLocation(null);
+      setNewMemoryText('');
+    } catch (e) {
+      console.error("Failed to add memory", e);
+    } finally {
+      setTagging(false);
+    }
+  };
+
   return (
     <div className="w-full h-full flex flex-col relative flex-1">
 
@@ -396,6 +449,7 @@ export function CampusMap() {
         <Map
           ref={mapRef}
           onClick={handleMapClick}
+          onContextMenu={handleMapContextMenu}
           interactiveLayerIds={['3d-buildings']}
           initialViewState={{
             longitude: initialCenter[0],
@@ -604,9 +658,46 @@ export function CampusMap() {
             </Marker>
           ))}
 
+          {/* Spatial Journal Memory Markers */}
+          {memories.map(mem => (
+            <Marker key={mem.id} longitude={mem.lng} latitude={mem.lat} anchor="bottom">
+              <div className="relative group cursor-pointer hover:z-50">
+                <div className="text-3xl filter drop-shadow-md transition-transform hover:scale-110">💭</div>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 pointer-events-none">
+                  <div className="text-xs font-bold text-indigo-600 mb-1 flex items-center justify-between">
+                    <span className="truncate mr-2">{mem.userName}</span>
+                    <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 rounded-full text-[10px] shrink-0">{mem.tag}</span>
+                  </div>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">{mem.text}</p>
+                </div>
+              </div>
+            </Marker>
+          ))}
 
         </Map>
       </div>
+
+      {newMemoryLocation && (
+        <>
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-[1999]" onClick={() => setNewMemoryLocation(null)} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl z-[2000] w-80 animate-fade-in-up border border-slate-200 dark:border-slate-700">
+            <h3 className="text-lg font-bold mb-4 text-slate-800 dark:text-white">Drop a Memory 💭</h3>
+            <textarea 
+              value={newMemoryText}
+              onChange={e => setNewMemoryText(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4 dark:text-white border border-slate-200 dark:border-slate-700 resize-none"
+              placeholder="What's on your mind about this spot?"
+              rows={3}
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setNewMemoryLocation(null)} className="px-4 py-2 text-slate-500 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
+              <button onClick={submitMemory} disabled={tagging || !newMemoryText.trim()} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl disabled:opacity-50 flex items-center gap-2 transition-colors">
+                {tagging ? 'Tagging...' : 'Drop Pin'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {gps.latitude && (
         <button

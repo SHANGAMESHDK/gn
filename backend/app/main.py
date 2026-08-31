@@ -14,6 +14,7 @@ from app.api.ar import router as ar_router
 from app.api.telemetry import router as telemetry_router
 from app.api.obsync import router as obsync_router
 from app.api.events import router as events_router
+from app.api.ai import router as ai_router
 
 # ==========================================================
 # Application Lifespan
@@ -76,6 +77,7 @@ app.include_router(ar_router)
 app.include_router(telemetry_router)
 app.include_router(obsync_router)
 app.include_router(events_router)
+app.include_router(ai_router, prefix="/ai")
 
 
 # ==========================================================

@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Home, Map, Glasses, Building, Store, Users, GraduationCap, Settings } from 'lucide-react';
+import { LoginButton } from '../auth/LoginButton';
 
 export function Sidebar() {
   const navItems = [
@@ -59,6 +60,9 @@ export function Sidebar() {
       <div className="h-4" />
       {/* Footer */}
       <div className="px-5 pb-4">
+        <div className="mb-4 flex justify-center">
+          <LoginButton />
+        </div>
         <div className="flex items-center gap-2 text-[10px] text-[#8a7a6a] dark:text-[#5a4a3a]">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           <span className="font-medium">v2.0</span>

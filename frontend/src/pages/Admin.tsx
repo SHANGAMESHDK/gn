@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { auth } from '../services/firebase';
 import { AdminAPI, StallsAPI, BuildingsAPI } from '../api';
 import { Activity, Database, GitMerge, RefreshCw, Trash2, Edit, MapPin, Network, Lock, ShieldCheck } from 'lucide-react';
 import { AdminStallPlacer } from '../components/admin/AdminStallPlacer';
@@ -6,6 +8,7 @@ import { AdminGraphEditor } from '../components/admin/AdminGraphEditor';
 import { AdminEditModal } from '../components/admin/AdminEditModal';
 
 export function Admin() {
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [stalls, setStalls] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,24 +19,16 @@ export function Admin() {
   const [buildings, setBuildings] = useState<any[]>([]);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [editingType, setEditingType] = useState<'building' | 'stall' | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [authError, setAuthError] = useState('');
-  
   const [securityCodeInput, setSecurityCodeInput] = useState('');
   const [proximityThresholdInput, setProximityThresholdInput] = useState(25);
   const [savingSettings, setSavingSettings] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username === 'admin' && password === 'admin123') {
-      setIsAuthenticated(true);
-      setAuthError('');
-    } else {
-      setAuthError('Invalid credentials');
-    }
-  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   async function loadData() {
     setLoading(true);
@@ -139,7 +134,7 @@ export function Admin() {
     }
   }
 
-  if (!isAuthenticated) {
+  if (!firebaseUser) {
     return (
       <div className="min-h-full flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
         <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden transform transition-all hover:scale-[1.01]">
@@ -150,42 +145,10 @@ export function Admin() {
             <h2 className="text-3xl font-black text-white tracking-tight">Admin Gateway</h2>
             <p className="text-indigo-100 mt-2 font-medium">Secure Access Only</p>
           </div>
-          <div className="p-8 space-y-6">
-            <form onSubmit={handleLogin} className="space-y-5">
-              {authError && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-bold rounded-xl text-center animate-pulse">
-                  {authError}
-                </div>
-              )}
-              <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Username</label>
-                <input 
-                  type="text" 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-slate-800 dark:text-white transition-all font-medium"
-                  placeholder="Enter admin username"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Password</label>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-slate-800 dark:text-white transition-all font-medium"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-              <button 
-                type="submit" 
-                className="w-full py-4 mt-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:shadow-indigo-300 transition-all flex items-center justify-center gap-2"
-              >
-                <Lock size={18} /> Authenticate
-              </button>
-            </form>
+          <div className="p-8 space-y-6 text-center">
+            <p className="text-slate-600 dark:text-slate-300">
+              Please sign in using the Google Single Sign-On (SSO) button in the sidebar to access the Admin Gateway.
+            </p>
           </div>
         </div>
       </div>

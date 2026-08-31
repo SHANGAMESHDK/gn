@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Spatial Journal Memories
+    match /memories/{memoryId} {
+      // Anyone can read public memories
+      allow read: if true;
+      
+      // Users can only create a memory if they are signed in and setting themselves as the author
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      
+      // Users can only update or delete their own memories
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}

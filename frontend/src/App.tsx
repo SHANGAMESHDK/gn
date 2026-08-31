@@ -14,6 +14,7 @@ import { OBSync } from './pages/OBSync';
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
 import { GlobalBroadcast } from './components/telemetry/GlobalBroadcast';
+import { GeminiAssistant } from './components/ai/GeminiAssistant';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
@@ -76,6 +77,7 @@ function App() {
             <Navbar />
           </div>
         </div>
+        <GeminiAssistant />
       </div>
     </Router>
   );
