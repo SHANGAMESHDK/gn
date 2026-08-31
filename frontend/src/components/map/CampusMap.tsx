@@ -61,6 +61,7 @@ export function CampusMap() {
   const [currentBlockName, setCurrentBlockName] = useState<string | null>(null);
 
   // Spatial Journal States
+  const [showMemories, setShowMemories] = useState(true);
   const [memories, setMemories] = useState<any[]>([]);
   const [newMemoryLocation, setNewMemoryLocation] = useState<{lat: number, lng: number} | null>(null);
   const [newMemoryText, setNewMemoryText] = useState('');
@@ -659,7 +660,7 @@ export function CampusMap() {
           ))}
 
           {/* Spatial Journal Memory Markers */}
-          {memories.map(mem => (
+          {showMemories && memories.map(mem => (
             <Marker key={mem.id} longitude={mem.lng} latitude={mem.lat} anchor="bottom">
               <div className="relative group cursor-pointer hover:z-50">
                 <div className="text-3xl filter drop-shadow-md transition-transform hover:scale-110">💭</div>
@@ -771,6 +772,17 @@ export function CampusMap() {
           title="Show Active Office Bearers"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+        </button>
+
+        {/* Spatial Journal Toggle */}
+        <button
+          onClick={() => setShowMemories(!showMemories)}
+          className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
+            showMemories ? 'bg-indigo-600 text-white shadow-indigo-600/50' : 'bg-white/90 backdrop-blur text-slate-700 hover:bg-white border border-white/20'
+          }`}
+          title="Toggle Spatial Journal Memories"
+        >
+          <span className="text-xl leading-none">💭</span>
         </button>
       </div>
 
