@@ -14,8 +14,6 @@ import { OBSync } from './pages/OBSync';
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
 import { GlobalBroadcast } from './components/telemetry/GlobalBroadcast';
-import { GeminiAssistant } from './components/ai/GeminiAssistant';
-import { LoginButton } from './components/auth/LoginButton';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
@@ -77,13 +75,7 @@ function App() {
           <div className="md:hidden absolute bottom-0 left-0 w-full z-50">
             <Navbar />
           </div>
-
-          {/* Mobile Login Button */}
-          <div className="md:hidden absolute top-4 right-4 z-50">
-            <LoginButton />
-          </div>
         </div>
-        <GeminiAssistant />
       </div>
     </Router>
   );
