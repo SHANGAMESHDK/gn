@@ -1,16 +1,16 @@
+import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import requests
-import os
+import google.generativeai as genai
 
 router = APIRouter()
 
-# In a real production app, pull this from a .env file or GCP Secret Manager
+# Configure the SDK
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    print("Warning: GEMINI_API_KEY environment variable not set")
-    
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
+if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
+    print("Warning: GEMINI_API_KEY is missing or invalid in .env")
+else:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 class ChatRequest(BaseModel):
     message: str
@@ -25,26 +25,33 @@ Keep your answers very brief and conversational.
 """
 
 def generate_content(prompt: str) -> str:
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}]
-    }
-    response = requests.post(GEMINI_URL, json=payload)
-    response.raise_for_status()
-    data = response.json()
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError):
-        return "Sorry, I couldn't understand that."
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
+        raise Exception("Google Gemini API key is missing. Please add it to backend/.env")
+        
+    model = genai.GenerativeModel(
+        model_name='gemini-flash-latest',
+        system_instruction=SYSTEM_INSTRUCTION
+    )
+    
+    response = model.generate_content(prompt)
+    return response.text
 
 @router.post("/chat")
 async def chat_with_assistant(request: ChatRequest):
     try:
         context = f"User is currently near: {request.locationContext}." if request.locationContext else ""
-        prompt = f"{SYSTEM_INSTRUCTION}\n{context}\nUser: {request.message}"
+        prompt = f"{context}\nUser: {request.message}"
         text = generate_content(prompt)
         return {"reply": text}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        print(f"AI Chat Error: {error_msg}")
+        
+        # Gracefully handle rate limits
+        if "429" in error_msg or "Quota exceeded" in error_msg:
+            return {"reply": "I'm currently receiving too many requests. Please wait a minute and try again!"}
+            
+        raise HTTPException(status_code=500, detail=error_msg)
 
 @router.post("/tag-memory")
 async def tag_memory(request: TagRequest):
@@ -54,4 +61,5 @@ async def tag_memory(request: TagRequest):
         tag = text.strip().split("\n")[0][:20]
         return {"tag": tag}
     except Exception as e:
+        print(f"AI Tag Error: {str(e)}")
         return {"tag": "General"}
