@@ -194,6 +194,16 @@ def create_stall(stall: dict):
         new_id = max(s["id"] for s in stalls) + 1
         
     stall["id"] = new_id
+    
+    # Auto-resolve nearest node_id if not provided but lat/lng exist
+    if not stall.get("node_id") and stall.get("latitude") and stall.get("longitude"):
+        try:
+            result = nearest_node_finder.find(stall["latitude"], stall["longitude"])
+            if result and result.get("node_id"):
+                stall["node_id"] = result["node_id"]
+        except Exception:
+            pass  # Leave node_id as null if resolution fails
+    
     stalls.append(stall)
     
     save_stalls(stalls)

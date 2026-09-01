@@ -5,7 +5,7 @@ import { apiClient } from '../../api/axios';
 import Map, { Source, Layer, Marker } from 'react-map-gl/maplibre';
 import type { MapRef } from 'react-map-gl/maplibre';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { NavigationAPI, AdminAPI } from '../../api';
+import { NavigationAPI, AdminAPI, StallsAPI } from '../../api';
 import { RoutePlanner } from './RoutePlanner';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { useNavigationDirections, calculateBearing, calculateDistance } from '../../hooks/useNavigationDirections';
@@ -16,7 +16,7 @@ import { BuildingSidebar } from './BuildingSidebar';
 import { useLiveWeather } from '../../hooks/useLiveWeather';
 import { WeatherOverlay } from './WeatherOverlay';
 import { useTelemetry } from '../../hooks/useTelemetry';
-import { Activity, Thermometer, MapPin } from 'lucide-react';
+import { Activity, Thermometer, MapPin, Store } from 'lucide-react';
 import { FloorSelector } from './FloorSelector';
 import { FloorPlanViewer } from './FloorPlanViewer';
 export function CampusMap() {
@@ -67,6 +67,10 @@ export function CampusMap() {
   const [newMemoryText, setNewMemoryText] = useState('');
   const [tagging, setTagging] = useState(false);
 
+  // Stalls on Map
+  const [showStalls, setShowStalls] = useState(false);
+  const [stallsData, setStallsData] = useState<any[]>([]);
+
   useEffect(() => {
     const q = query(collection(db, 'memories'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -74,6 +78,19 @@ export function CampusMap() {
       setMemories(mems);
     });
     return () => unsubscribe();
+  }, []);
+
+  // Fetch Stalls data
+  useEffect(() => {
+    async function fetchStalls() {
+      try {
+        const res = await StallsAPI.getAllStalls();
+        setStallsData(res.stalls || []);
+      } catch (e) {
+        console.warn('Failed to fetch stalls', e);
+      }
+    }
+    fetchStalls();
   }, []);
 
   useEffect(() => {
@@ -544,11 +561,51 @@ export function CampusMap() {
                         100, '#991b1b'
                       ]
                     : weather && !weather.isDay
-                      ? ['case', ['==', ['get', 'height'], 0], '#064e3b', '#1e3a8a']
-                      : ['get', 'color'],
+                      ? [
+                          'case',
+                          ['==', ['get', 'height'], 0], '#1a2332',
+                          ['has', 'building_type'],
+                          [
+                            'match', ['get', 'building_type'],
+                            'academic', '#2d1f3d',
+                            'lab', '#1a2744',
+                            'hostel', '#2d2a1a',
+                            'admin', '#1f2937',
+                            '#1e2d4a'
+                          ],
+                          '#1e2d4a'
+                        ]
+                      : [
+                          'case',
+                          ['has', 'building_type'],
+                          [
+                            'match', ['get', 'building_type'],
+                            'academic', '#b85c38',
+                            'lab', '#2563eb',
+                            'hostel', '#d97706',
+                            'admin', '#475569',
+                            ['get', 'color']
+                          ],
+                          ['get', 'color']
+                        ],
                   'fill-extrusion-height': ['get', 'height'],
                   'fill-extrusion-base': ['get', 'base_height'],
-                  'fill-extrusion-opacity': showOccupancy ? 0.8 : (weather && !weather.isDay ? 0.55 : 0.55)
+                  'fill-extrusion-opacity': showOccupancy ? 0.85 : (
+                    weather && !weather.isDay
+                      ? [
+                          'case',
+                          ['==', ['get', 'height'], 0], 0.3,
+                          0.65
+                        ] as any
+                      : [
+                          'case',
+                          selectedBuilding
+                            ? ['==', ['get', 'Name'], selectedBuilding.Name || '']
+                            : false,
+                          0.9,
+                          0.6
+                        ] as any
+                  )
                 }}
               />
               {/* Building Labels Layer */}
@@ -557,13 +614,14 @@ export function CampusMap() {
                 type="symbol"
                 layout={{
                   'text-field': ['get', 'Name'],
-                  'text-size': 12,
-                  'text-anchor': 'center'
+                  'text-size': 13,
+                  'text-anchor': 'center',
+                  'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold']
                 }}
                 paint={{
-                  'text-color': weather && !weather.isDay ? '#ffffff' : '#1e293b',
-                  'text-halo-color': weather && !weather.isDay ? '#1e293b' : '#ffffff',
-                  'text-halo-width': 2
+                  'text-color': weather && !weather.isDay ? '#C8A951' : '#2d2019',
+                  'text-halo-color': weather && !weather.isDay ? '#110810' : '#ffffff',
+                  'text-halo-width': 2.5
                 }}
               />
             </Source>
@@ -675,6 +733,39 @@ export function CampusMap() {
             </Marker>
           ))}
 
+          {/* Stall Markers */}
+          {showStalls && stallsData.map(stall => {
+            const stallLat = stall.latitude || stall.lat;
+            const stallLng = stall.longitude || stall.lng;
+            if (!stallLat || !stallLng) return null;
+            return (
+              <Marker key={`stall-${stall.id}`} longitude={stallLng} latitude={stallLat} anchor="bottom">
+                <div
+                  className="relative group cursor-pointer hover:z-50"
+                  onClick={() => {
+                    if (stall.node_id) {
+                      navigate(`/map?destination=${encodeURIComponent(stall.name)}&destination_node_id=${stall.node_id}&source_node_id=gps`);
+                    }
+                  }}
+                >
+                  <div className="w-8 h-8 bg-[#C8A951] rounded-full flex items-center justify-center shadow-lg shadow-[#C8A951]/30 border-2 border-white transition-transform hover:scale-110">
+                    <Store size={14} className="text-[#2d2019]" />
+                  </div>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-44 bg-white dark:bg-[#2d2019] p-3 rounded-xl shadow-2xl border border-[#C8A951]/20 pointer-events-none">
+                    <div className="text-xs font-bold text-[#7B1113] dark:text-[#C8A951] mb-0.5">{stall.name}</div>
+                    <div className="text-[10px] text-[#8a7a6a] uppercase tracking-wider font-bold">{stall.category || 'General'}</div>
+                    {stall.status === 'active' && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Open Now</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Marker>
+            );
+          })}
+
         </Map>
       </div>
 
@@ -783,6 +874,17 @@ export function CampusMap() {
           title="Toggle Spatial Journal Memories"
         >
           <span className="text-xl leading-none">💭</span>
+        </button>
+
+        {/* Stalls Toggle */}
+        <button
+          onClick={() => setShowStalls(!showStalls)}
+          className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${
+            showStalls ? 'bg-[#C8A951] text-[#2d2019] shadow-[#C8A951]/40' : 'bg-white/90 backdrop-blur text-slate-700 hover:bg-white border border-white/20'
+          }`}
+          title="Toggle Campus Stalls"
+        >
+          <Store size={22} />
         </button>
       </div>
 

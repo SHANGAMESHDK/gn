@@ -253,7 +253,7 @@ export function CampusAR() {
           {/* Navigation Route Waypoints */}
           {routeWaypoints.map((wp, idx) => {
             const distance = getDistanceFromLatLonInM(activeLat, activeLng, wp.latitude, wp.longitude);
-            if (distance > MAX_DISTANCE || distance < 2) return null; // Don't show if too far or already passed
+            if (distance > MAX_DISTANCE || distance < 2) return null;
 
             const bearing = calculateBearing(activeLat, activeLng, wp.latitude, wp.longitude);
             let angleDiff = bearing - heading;
@@ -264,8 +264,6 @@ export function CampusAR() {
 
             const xPercent = 50 + (angleDiff / (FOV / 2)) * 50;
             const scale = Math.max(0.2, 1 - (distance / MAX_DISTANCE));
-            
-            // Route dots slightly lower on screen to simulate ground path
             const yPercent = 65 - (distance / MAX_DISTANCE) * 30;
             const isLast = idx === routeWaypoints.length - 1;
 
@@ -281,19 +279,32 @@ export function CampusAR() {
                 }}
               >
                 {isLast ? (
-                   <div className="flex flex-col items-center gap-2">
-                     <div className="px-4 py-2 rounded-2xl shadow-2xl backdrop-blur-md border bg-red-600/80 border-red-400 text-white shadow-red-500/50">
-                       <span className="font-bold text-lg whitespace-nowrap">{destinationName || 'Destination'}</span>
-                     </div>
-                     <div className="px-3 py-1 rounded-full text-sm font-bold shadow-lg bg-red-900/90 text-red-200">
-                       {Math.round(distance)}m
-                     </div>
-                     <div className="w-1 h-12 rounded-full mt-1 bg-red-400"></div>
-                   </div>
+                  /* ── Destination Beacon ── */
+                  <div className="flex flex-col items-center">
+                    {/* Pulsing concentric rings */}
+                    <div className="relative flex items-center justify-center mb-2">
+                      <div className="absolute w-24 h-24 rounded-full border-2 border-[#C8A951]/40 animate-ping" style={{ animationDuration: '2s' }} />
+                      <div className="absolute w-16 h-16 rounded-full border border-[#C8A951]/25 animate-ping" style={{ animationDuration: '2.5s' }} />
+                      <div className="relative bg-gradient-to-br from-[#7B1113] to-[#5a0c0e] backdrop-blur-xl border border-[#C8A951]/30 px-5 py-2.5 rounded-2xl shadow-[0_0_30px_rgba(123,17,19,0.6)]">
+                        <span className="font-black text-white text-lg whitespace-nowrap tracking-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
+                          {destinationName || 'Destination'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="px-3 py-1 rounded-full text-xs font-black bg-[#C8A951] text-[#2d2019] shadow-lg shadow-[#C8A951]/30">
+                      {Math.round(distance)}m away
+                    </div>
+                    {/* Stem with glow */}
+                    <div className="w-0.5 h-10 mt-1.5 bg-gradient-to-b from-[#C8A951] to-transparent rounded-full shadow-[0_0_8px_rgba(200,169,81,0.5)]" />
+                    <div className="w-3 h-3 rounded-full bg-[#C8A951] shadow-[0_0_12px_rgba(200,169,81,0.8)] animate-pulse" />
+                  </div>
                 ) : (
-                   <div className="flex flex-col items-center opacity-60">
-                     <div className="w-6 h-6 rounded-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)] border-2 border-white animate-pulse"></div>
-                   </div>
+                  /* ── Route Waypoint — Radar Ping ── */
+                  <div className="relative flex items-center justify-center">
+                    <div className="absolute w-10 h-10 rounded-full bg-[#C8A951]/10 animate-ping" style={{ animationDuration: '1.5s' }} />
+                    <div className="absolute w-6 h-6 rounded-full bg-[#C8A951]/20 animate-pulse" />
+                    <div className="w-3 h-3 rounded-full bg-[#C8A951] shadow-[0_0_10px_rgba(200,169,81,0.7)] border border-white/50" />
+                  </div>
                 )}
               </div>
             );
@@ -313,6 +324,7 @@ export function CampusAR() {
             const yPercent = 50 - (poi.distance / MAX_DISTANCE) * 20;
 
             const isBuilding = poi.type === 'building';
+            const poiIcon = isBuilding ? '🏢' : '🏪';
             
             return (
               <div
@@ -325,20 +337,26 @@ export function CampusAR() {
                   zIndex: Math.round((MAX_DISTANCE - poi.distance) * 10)
                 }}
               >
-                <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => navigate(`/ar?destination_node_id=${poi.id}&destination=${encodeURIComponent(poi.name)}`)}>
-                  <div className={`px-4 py-2 rounded-2xl shadow-2xl backdrop-blur-md border ${
-                    isBuilding 
-                      ? 'bg-blue-600/80 border-blue-400 text-white shadow-blue-500/50' 
-                      : 'bg-emerald-600/80 border-emerald-400 text-white shadow-emerald-500/50'
-                  }`}>
-                    <span className="font-bold text-lg whitespace-nowrap">{poi.name}</span>
+                <div className="flex flex-col items-center cursor-pointer group" onClick={() => navigate(`/ar?destination_node_id=${poi.id}&destination=${encodeURIComponent(poi.name)}`)}>
+                  {/* Glassmorphism Card */}
+                  <div className="relative">
+                    {/* Subtle outer glow */}
+                    <div className={`absolute -inset-1 rounded-2xl blur-md opacity-40 ${isBuilding ? 'bg-[#7B1113]' : 'bg-[#C8A951]'}`} />
+                    <div className="relative bg-black/40 backdrop-blur-xl border border-white/15 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2.5 group-active:scale-95 transition-transform">
+                      <span className="text-xl">{poiIcon}</span>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-white text-sm whitespace-nowrap leading-tight tracking-tight">{poi.name}</span>
+                        <span className="text-[10px] font-bold text-[#C8A951]/80 uppercase tracking-wider">{poi.type}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-bold shadow-lg ${
-                    isBuilding ? 'bg-blue-900/90 text-blue-200' : 'bg-emerald-900/90 text-emerald-200'
-                  }`}>
+                  {/* Distance badge */}
+                  <div className="mt-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-white/10 backdrop-blur-md text-white/90 border border-white/10 shadow-lg">
                     {Math.round(poi.distance)}m
                   </div>
-                  <div className={`w-1 h-12 rounded-full mt-1 ${isBuilding ? 'bg-blue-400' : 'bg-emerald-400'}`}></div>
+                  {/* Stem line + dot */}
+                  <div className={`w-px h-8 mt-1 rounded-full ${isBuilding ? 'bg-gradient-to-b from-[#7B1113]/60 to-transparent' : 'bg-gradient-to-b from-[#C8A951]/60 to-transparent'}`} />
+                  <div className={`w-2 h-2 rounded-full ${isBuilding ? 'bg-[#7B1113] shadow-[0_0_8px_rgba(123,17,19,0.6)]' : 'bg-[#C8A951] shadow-[0_0_8px_rgba(200,169,81,0.6)]'}`} />
                 </div>
               </div>
             );
