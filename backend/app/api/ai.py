@@ -29,7 +29,7 @@ def generate_content(prompt: str) -> str:
         raise Exception("Google Gemini API key is missing. Please add it to backend/.env")
         
     model = genai.GenerativeModel(
-        model_name='gemini-flash-latest',
+        model_name='gemini-2.5-flash',
         system_instruction=SYSTEM_INSTRUCTION
     )
     
