@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '../services/firebase';
-import { AdminAPI, StallsAPI, BuildingsAPI } from '../api';
+import { AdminAPI, StallsAPI, BuildingsAPI, EventsAPI } from '../api';
 import { Activity, Database, GitMerge, RefreshCw, Trash2, Edit, MapPin, Network, Lock, ShieldCheck } from 'lucide-react';
 import { AdminStallPlacer } from '../components/admin/AdminStallPlacer';
 import { AdminGraphEditor } from '../components/admin/AdminGraphEditor';
@@ -17,8 +17,9 @@ export function Admin() {
   const [showPlacer, setShowPlacer] = useState(false);
   const [showGraphEditor, setShowGraphEditor] = useState(false);
   const [buildings, setBuildings] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [editingItem, setEditingItem] = useState<any>(null);
-  const [editingType, setEditingType] = useState<'building' | 'stall' | null>(null);
+  const [editingType, setEditingType] = useState<'building' | 'stall' | 'event' | null>(null);
   const [securityCodeInput, setSecurityCodeInput] = useState('');
   const [proximityThresholdInput, setProximityThresholdInput] = useState(25);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -33,15 +34,17 @@ export function Admin() {
   async function loadData() {
     setLoading(true);
     try {
-      const [statsData, stallsData, buildingsData, settingsData] = await Promise.all([
+      const [statsData, stallsData, buildingsData, eventsData, settingsData] = await Promise.all([
         AdminAPI.getStatus(),
         StallsAPI.getAllStalls(),
         BuildingsAPI.getAllBuildings(),
+        EventsAPI.getAllEvents(),
         AdminAPI.getSettings()
       ]);
       setStats(statsData);
       setStalls(stallsData.stalls || []);
       setBuildings(buildingsData.buildings || []);
+      setEvents(eventsData || []);
       setSecurityCodeInput(settingsData?.friendsync_security_code || '');
       setProximityThresholdInput(settingsData?.building_proximity_threshold ?? 25);
       setError(null);
@@ -96,6 +99,16 @@ export function Admin() {
     }
   }
 
+  async function handleDeleteEvent(id: string) {
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+    try {
+      await EventsAPI.deleteEvent(id);
+      setEvents(events.filter(e => e.id !== id));
+    } catch (err: any) {
+      alert("Failed to delete event: " + err.message);
+    }
+  }
+
   async function handleSaveStall(lat: number, lng: number, name: string, category: string) {
     const newStall = {
       name,
@@ -127,6 +140,14 @@ export function Admin() {
       } else if (editingType === 'building') {
         await BuildingsAPI.updateBuildingOverride(data);
         setBuildings(buildings.map(b => b.id === data.id ? { ...b, ...data } : b));
+      } else if (editingType === 'event') {
+        if (data.id) {
+          const updatedEvent = await EventsAPI.updateEvent(data.id, data as any);
+          setEvents(events.map(e => e.id === data.id ? updatedEvent : e));
+        } else {
+          const newEvent = await EventsAPI.createEvent(data as any);
+          setEvents([...events, newEvent]);
+        }
       }
     } catch (err: any) {
       alert("Failed to save: " + err.message);
@@ -387,6 +408,61 @@ export function Admin() {
               {buildings.length === 0 && !loading && (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-slate-500">No buildings found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      {/* Events Management */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mt-8">
+        <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Events Management</h2>
+          <button 
+            onClick={() => { setEditingItem({}); setEditingType('event'); }}
+            className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            + Add Event
+          </button>
+        </div>
+        <div className="overflow-x-auto max-h-96">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-sm">
+                <th className="p-4 font-medium">Title</th>
+                <th className="p-4 font-medium">Location</th>
+                <th className="p-4 font-medium">Time</th>
+                <th className="p-4 font-medium">Organizer</th>
+                <th className="p-4 font-medium">Status</th>
+                <th className="p-4 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map(event => (
+                <tr key={event.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                  <td className="p-4 font-medium text-slate-800 dark:text-white">{event.title}</td>
+                  <td className="p-4 text-slate-600 dark:text-slate-300">{event.building_id}</td>
+                  <td className="p-4 text-slate-600 dark:text-slate-300">{event.time}</td>
+                  <td className="p-4 text-slate-600 dark:text-slate-300">{event.organizer}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${event.is_live ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
+                      {event.is_live ? 'Live' : 'Upcoming/Past'}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right flex items-center justify-end gap-2">
+                    <button onClick={() => { setEditingItem({ ...event, name: event.title }); setEditingType('event'); }} className="p-2 text-slate-400 hover:text-blue-500 transition-colors" title="Edit">
+                      <Edit size={16} />
+                    </button>
+                    <button onClick={() => handleDeleteEvent(event.id)} className="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Delete">
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {events.length === 0 && !loading && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-slate-500">No events found.</td>
                 </tr>
               )}
             </tbody>

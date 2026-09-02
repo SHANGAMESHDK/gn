@@ -25,5 +25,20 @@ export const EventsAPI = {
   getAllEvents: async (): Promise<CampusEvent[]> => {
     const response = await apiClient.get('/events/all');
     return response.data;
+  },
+
+  createEvent: async (event: Omit<CampusEvent, 'id'> | CampusEvent): Promise<CampusEvent> => {
+    const response = await apiClient.post('/events/', event);
+    return response.data;
+  },
+
+  updateEvent: async (id: string, event: CampusEvent): Promise<CampusEvent> => {
+    const response = await apiClient.put(`/events/${id}`, event);
+    return response.data;
+  },
+
+  deleteEvent: async (id: string): Promise<{ message: string }> => {
+    const response = await apiClient.delete(`/events/${id}`);
+    return response.data;
   }
 };

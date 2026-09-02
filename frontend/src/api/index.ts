@@ -5,3 +5,4 @@ export { StallsAPI } from './stalls';
 export { GPSAPI } from './gps';
 export { AdminAPI } from './admin';
 export { SearchAPI } from './search';
+export { EventsAPI } from './events';

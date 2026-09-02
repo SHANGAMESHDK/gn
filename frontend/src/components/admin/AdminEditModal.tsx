@@ -8,6 +8,12 @@ export interface AdminEditData {
   description?: string;
   cover_photo?: string;
   category?: string; // only for stalls
+  // Event specific fields
+  building_id?: string;
+  time?: string;
+  organizer?: string;
+  tags?: string[];
+  is_live?: boolean;
 }
 
 interface AdminEditModalProps {
@@ -15,7 +21,7 @@ interface AdminEditModalProps {
   onClose: () => void;
   onSave: (data: AdminEditData) => void;
   initialData: AdminEditData | null;
-  type: 'building' | 'stall';
+  type: 'building' | 'stall' | 'event';
 }
 
 export function AdminEditModal({ isOpen, onClose, onSave, initialData, type }: AdminEditModalProps) {
@@ -24,7 +30,12 @@ export function AdminEditModal({ isOpen, onClose, onSave, initialData, type }: A
     name: '',
     description: '',
     cover_photo: '',
-    category: ''
+    category: '',
+    building_id: '',
+    time: '',
+    organizer: '',
+    tags: [],
+    is_live: false
   });
 
   useEffect(() => {
@@ -34,7 +45,12 @@ export function AdminEditModal({ isOpen, onClose, onSave, initialData, type }: A
         name: initialData.name || '',
         description: initialData.description || '',
         cover_photo: initialData.cover_photo || '',
-        category: initialData.category || ''
+        category: initialData.category || '',
+        building_id: initialData.building_id || '',
+        time: initialData.time || '',
+        organizer: initialData.organizer || '',
+        tags: initialData.tags || [],
+        is_live: initialData.is_live || false
       });
     }
   }, [initialData]);
@@ -120,6 +136,72 @@ export function AdminEditModal({ isOpen, onClose, onSave, initialData, type }: A
                 placeholder="https://example.com/image.jpg"
               />
             </div>
+
+            {type === 'event' && (
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Building / Location
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.building_id}
+                    onChange={(e) => setFormData({ ...formData, building_id: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="e.g. Main Block"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Time
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="e.g. 10:00 AM - 4:00 PM"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Organizer
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.organizer}
+                    onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Tags (comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.tags?.join(', ') || ''}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                      setFormData({ ...formData, tags });
+                    }}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <input
+                    type="checkbox"
+                    id="is_live"
+                    checked={formData.is_live}
+                    onChange={(e) => setFormData({ ...formData, is_live: e.target.checked })}
+                    className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="is_live" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Is Live Now?
+                  </label>
+                </div>
+              </>
+            )}
 
             {formData.cover_photo && (
               <div className="mt-2 rounded-lg overflow-hidden h-32 border border-slate-200 dark:border-slate-700 relative group bg-slate-100 dark:bg-slate-800">

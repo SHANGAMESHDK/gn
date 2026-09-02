@@ -1,0 +1,67 @@
+[
+    {
+        "id": "evt_1",
+        "title": "Hackathon 2026 Finals",
+        "description": "The final round of the annual 24-hour hackathon. Teams are presenting their projects to industry judges.",
+        "building_id": "Main Block",
+        "time": "10:00 AM - 4:00 PM",
+        "organizer": "Computer Science Dept",
+        "tags": [
+            "Tech",
+            "Competition"
+        ],
+        "is_live": true
+    },
+    {
+        "id": "evt_2",
+        "title": "Robotics Workshop",
+        "description": "Hands-on workshop on autonomous drones and rovers with live demonstrations.",
+        "building_id": "PG Block",
+        "time": "2:00 PM - 5:00 PM",
+        "organizer": "Robotics Club",
+        "tags": [
+            "Workshop",
+            "Engineering"
+        ],
+        "is_live": true
+    },
+    {
+        "id": "evt_3",
+        "title": "Alumni Meet 2026",
+        "description": "Annual gathering of SRM Easwari alumni sharing industry insights and career guidance.",
+        "building_id": "TRP Auditorium",
+        "time": "9:00 AM - 1:00 PM",
+        "organizer": "Alumni Association",
+        "tags": [
+            "Networking",
+            "Seminar"
+        ],
+        "is_live": false
+    },
+    {
+        "id": "evt_4",
+        "title": "IoT Symposium",
+        "description": "Exploring the future of Internet of Things and Smart Campus technologies.",
+        "building_id": "Block 5",
+        "time": "11:00 AM - 1:00 PM",
+        "organizer": "ECE Dept",
+        "tags": [
+            "Seminar",
+            "Tech"
+        ],
+        "is_live": true
+    },
+    {
+        "id": "evt_5",
+        "title": "Cultural Fest Rehearsal",
+        "description": "Dance and music rehearsal for the upcoming inter-college cultural fest.",
+        "building_id": "TRP Auditorium",
+        "time": "3:00 PM - 6:00 PM",
+        "organizer": "Cultural Committee",
+        "tags": [
+            "Cultural",
+            "Event"
+        ],
+        "is_live": true
+    }
+]

@@ -1,15 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.models.event import CampusEvent
 from typing import List
+import json
+from pathlib import Path
+import uuid
 
 router = APIRouter(
     prefix="/events",
     tags=["Events"]
 )
 
-# =====================================================
-# Simulated campus events for demonstration
-# =====================================================
+EVENTS_FILE = Path(__file__).resolve().parents[2] / "app" / "data" / "events.json"
 
 MOCK_EVENTS = [
     {
@@ -61,27 +62,82 @@ MOCK_EVENTS = [
         "organizer": "Cultural Committee",
         "tags": ["Cultural", "Event"],
         "is_live": True
-    },
+    }
 ]
 
+def load_events():
+    if not EVENTS_FILE.exists():
+        EVENTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(EVENTS_FILE, "w") as f:
+            json.dump(MOCK_EVENTS, f, indent=4)
+        return MOCK_EVENTS
+        
+    try:
+        with open(EVENTS_FILE, "r") as f:
+            return json.load(f)
+    except Exception:
+        return MOCK_EVENTS
+
+def save_events(events):
+    EVENTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(EVENTS_FILE, "w") as f:
+        json.dump(events, f, indent=4)
 
 @router.get("/live", response_model=List[CampusEvent])
 def get_live_events():
     """Returns events currently happening on campus."""
-    return [CampusEvent(**evt) for evt in MOCK_EVENTS if evt["is_live"]]
-
+    events = load_events()
+    return [CampusEvent(**evt) for evt in events if evt.get("is_live")]
 
 @router.get("/all", response_model=List[CampusEvent])
 def get_all_events():
     """Returns all scheduled campus events."""
-    return [CampusEvent(**evt) for evt in MOCK_EVENTS]
-
+    events = load_events()
+    return [CampusEvent(**evt) for evt in events]
 
 @router.get("/building/{building_name}", response_model=List[CampusEvent])
 def get_events_by_building(building_name: str):
     """Returns events for a specific building (case-insensitive match)."""
+    events = load_events()
     return [
         CampusEvent(**evt)
-        for evt in MOCK_EVENTS
-        if evt["building_id"].lower() == building_name.lower()
+        for evt in events
+        if evt.get("building_id", "").lower() == building_name.lower()
     ]
+
+# Admin Endpoints
+@router.post("/", response_model=CampusEvent)
+def create_event(event: CampusEvent):
+    events = load_events()
+    evt_dict = event.dict()
+    if not evt_dict.get("id"):
+        evt_dict["id"] = f"evt_{uuid.uuid4().hex[:8]}"
+        
+    events.append(evt_dict)
+    save_events(events)
+    return CampusEvent(**evt_dict)
+
+@router.put("/{event_id}", response_model=CampusEvent)
+def update_event(event_id: str, event: CampusEvent):
+    events = load_events()
+    for i, e in enumerate(events):
+        if e["id"] == event_id:
+            evt_dict = event.dict()
+            evt_dict["id"] = event_id # Ensure ID doesn't change
+            events[i] = evt_dict
+            save_events(events)
+            return CampusEvent(**evt_dict)
+            
+    raise HTTPException(status_code=404, detail="Event not found")
+
+@router.delete("/{event_id}")
+def delete_event(event_id: str):
+    events = load_events()
+    initial_len = len(events)
+    events = [e for e in events if e["id"] != event_id]
+    
+    if len(events) == initial_len:
+        raise HTTPException(status_code=404, detail="Event not found")
+        
+    save_events(events)
+    return {"message": "Event deleted successfully"}
