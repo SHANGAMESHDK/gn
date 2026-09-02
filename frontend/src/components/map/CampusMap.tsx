@@ -17,7 +17,6 @@ import { useLiveWeather } from '../../hooks/useLiveWeather';
 import { WeatherOverlay } from './WeatherOverlay';
 import { useTelemetry } from '../../hooks/useTelemetry';
 import { Activity, Thermometer, MapPin, Store } from 'lucide-react';
-import { FloorSelector } from './FloorSelector';
 import { FloorPlanViewer } from './FloorPlanViewer';
 import { ExplodedBuildingView } from './ExplodedBuildingView';
 export function CampusMap() {
@@ -899,11 +898,7 @@ export function CampusMap() {
 
       {selectedBuilding && (
         <>
-          <FloorSelector
-            currentFloor={currentFloor}
-            buildingName={selectedBuilding.Name || ''}
-            onChange={setCurrentFloor}
-          />
+
           {currentFloor !== 'All' && (
             <FloorPlanViewer
               buildingName={selectedBuilding.Name || 'Building'}
