@@ -82,8 +82,21 @@ async def chat_with_assistant(request: ChatRequest):
         context = f"User is currently near: {request.locationContext}." if request.locationContext else ""
         knowledge = get_knowledge_context()
         
-        # We override the system instruction for chat to enforce JSON
-        chat_instruction = SYSTEM_INSTRUCTION + "\n" + knowledge + "\n" + CHAT_JSON_SCHEMA_INSTRUCTION
+        # Check if user wants to trigger learning mode
+        is_learning_mode = request.message.strip().lower().startswith("/learncl")
+        
+        if is_learning_mode:
+            # Use JSON schema for learning mode
+            chat_instruction = SYSTEM_INSTRUCTION + "\n" + knowledge + "\n" + CHAT_JSON_SCHEMA_INSTRUCTION
+            generation_config = genai.GenerationConfig(response_mime_type="application/json")
+            clean_message = request.message.replace("/learncl", "", 1).strip()
+            # Instruct AI that the user is teaching it a new fact
+            contents = [f"{context}\nUser is providing a new fact for you to learn. Acknowledge it and extract the fact:\nUser: {clean_message}"]
+        else:
+            # Standard fast chat mode
+            chat_instruction = SYSTEM_INSTRUCTION + "\n" + knowledge
+            generation_config = None
+            contents = [f"{context}\nUser: {request.message}"]
         
         if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
             raise Exception("Google Gemini API key is missing. Please add it to backend/.env")
@@ -91,10 +104,9 @@ async def chat_with_assistant(request: ChatRequest):
         model = genai.GenerativeModel(
             model_name='gemini-3.1-flash-lite',
             system_instruction=chat_instruction,
-            generation_config=genai.GenerationConfig(response_mime_type="application/json")
+            generation_config=generation_config
         )
         
-        contents = [f"{context}\nUser: {request.message}"]
         if request.image_base64:
             if "," in request.image_base64:
                 _, request.image_base64 = request.image_base64.split(",", 1)
@@ -108,25 +120,30 @@ async def chat_with_assistant(request: ChatRequest):
                 
         response = model.generate_content(contents)
         
-        # Parse JSON
-        result = json.loads(response.text)
-        reply = result.get("reply", "Sorry, I couldn't understand that.")
-        learned_fact = result.get("learned_fact")
-        
-        if learned_fact:
-            # Save new fact
-            facts = []
-            if os.path.exists(KNOWLEDGE_FILE):
-                try:
-                    with open(KNOWLEDGE_FILE, "r") as f:
-                        facts = json.load(f)
-                except Exception:
-                    pass
-            facts.append(learned_fact)
-            with open(KNOWLEDGE_FILE, "w") as f:
-                json.dump(facts, f, indent=2)
-                
-        return {"reply": reply}
+        if is_learning_mode:
+            # Parse JSON in learning mode
+            result = json.loads(response.text)
+            reply = result.get("reply", "Got it, I've learned this new information.")
+            learned_fact = result.get("learned_fact")
+            
+            if learned_fact:
+                # Save new fact
+                facts = []
+                if os.path.exists(KNOWLEDGE_FILE):
+                    try:
+                        with open(KNOWLEDGE_FILE, "r") as f:
+                            facts = json.load(f)
+                    except Exception:
+                        pass
+                facts.append(learned_fact)
+                with open(KNOWLEDGE_FILE, "w") as f:
+                    json.dump(facts, f, indent=2)
+                    
+            return {"reply": reply}
+        else:
+            # Standard text response
+            return {"reply": response.text}
+            
     except Exception as e:
         error_msg = str(e)
         print(f"AI Chat Error: {error_msg}")
