@@ -1,25 +1,41 @@
 import { useState } from 'react';
-import { Bot, Send, X, MessageSquare } from 'lucide-react';
+import { Bot, Send, X, MessageSquare, Camera } from 'lucide-react';
 import { apiClient } from '../../api/axios';
 
 export function GeminiAssistant({ locationContext }: { locationContext?: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ role: 'user' | 'assistant', text: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant', text: string, image_url?: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && !imageFile) return;
 
     const userMessage = input.trim();
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    const currentImagePreview = imagePreview; // Capture before clearing
+    
+    setMessages(prev => [...prev, { role: 'user', text: userMessage, image_url: currentImagePreview || undefined }]);
     setInput('');
+    setImageFile(null);
+    setImagePreview(null);
     setLoading(true);
+    
+    let imageBase64: string | undefined = undefined;
+    if (imageFile) {
+        imageBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(imageFile);
+        });
+    }
 
     try {
       const res = await apiClient.post('/ai/chat', {
         message: userMessage,
-        locationContext: locationContext || "Unknown"
+        locationContext: locationContext || "Unknown",
+        image_base64: imageBase64
       });
       setMessages(prev => [...prev, { role: 'assistant', text: res.data.reply }]);
     } catch (e) {
@@ -71,6 +87,9 @@ export function GeminiAssistant({ locationContext }: { locationContext?: string 
                     ? 'bg-gradient-to-br from-[#7B1113] to-[#6a0e10] text-white rounded-tr-none'
                     : 'bg-[#f0e8dc] dark:bg-[#2d2019] text-[#2d2019] dark:text-[#f0e8dc] rounded-tl-none border border-[#C8A951]/10'
                   }`}>
+                  {msg.image_url && (
+                    <img src={msg.image_url} alt="Uploaded by user" className="w-full max-w-[200px] rounded-lg mb-2 border border-white/20" />
+                  )}
                   {msg.text}
                 </div>
               </div>
@@ -89,22 +108,43 @@ export function GeminiAssistant({ locationContext }: { locationContext?: string 
           </div>
 
           {/* Input */}
-          <div className="p-3 bg-white/50 dark:bg-[#1a1018]/50 border-t border-[#C8A951]/20 flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Ask a question..."
-              className="flex-1 bg-[#f8f5f0] dark:bg-[#2d2019] px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-[#C8A951] dark:text-[#f0e8dc] border border-[#C8A951]/20 placeholder-[#8a7a6a] dark:placeholder-[#5a4a3a]"
-            />
-            <button
-              onClick={sendMessage}
-              disabled={!input.trim() || loading}
-              className="p-2.5 bg-gradient-to-br from-[#7B1113] to-[#5a0c0e] text-[#C8A951] rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-sm"
-            >
-              <Send size={18} />
-            </button>
+          <div className="p-3 bg-white/50 dark:bg-[#1a1018]/50 border-t border-[#C8A951]/20 flex flex-col gap-2">
+            {imagePreview && (
+              <div className="relative self-start animate-fade-in-up">
+                <img src={imagePreview} className="h-16 w-16 object-cover rounded-lg border border-[#C8A951]/30 shadow-sm" alt="Preview" />
+                <button onClick={() => { setImageFile(null); setImagePreview(null); }} className="absolute -top-2 -right-2 bg-white dark:bg-[#2d2019] text-red-500 rounded-full p-1 shadow-md hover:scale-110 transition-transform border border-red-500/20">
+                  <X size={12} strokeWidth={3} />
+                </button>
+              </div>
+            )}
+            <div className="flex gap-2 w-full">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                placeholder="Ask a question or upload a photo..."
+                className="flex-1 min-w-0 bg-[#f8f5f0] dark:bg-[#2d2019] px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-[#C8A951] dark:text-[#f0e8dc] border border-[#C8A951]/20 placeholder-[#8a7a6a] dark:placeholder-[#5a4a3a]"
+              />
+              <div className="flex gap-1.5 shrink-0">
+                <label className="p-2.5 bg-[#f0e8dc] dark:bg-[#2d2019] text-[#7B1113] dark:text-[#C8A951] rounded-xl hover:brightness-95 transition-all shadow-sm cursor-pointer flex items-center justify-center border border-[#C8A951]/20">
+                  <Camera size={18} />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setImageFile(e.target.files[0]);
+                      setImagePreview(URL.createObjectURL(e.target.files[0]));
+                    }
+                  }} />
+                </label>
+                <button
+                  onClick={sendMessage}
+                  disabled={(!input.trim() && !imageFile) || loading}
+                  className="p-2.5 bg-gradient-to-br from-[#7B1113] to-[#5a0c0e] text-[#C8A951] rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
