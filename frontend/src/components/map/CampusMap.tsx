@@ -19,6 +19,7 @@ import { useTelemetry } from '../../hooks/useTelemetry';
 import { Activity, Thermometer, MapPin, Store } from 'lucide-react';
 import { FloorSelector } from './FloorSelector';
 import { FloorPlanViewer } from './FloorPlanViewer';
+import { ExplodedBuildingView } from './ExplodedBuildingView';
 export function CampusMap() {
   const mapRef = useRef<MapRef>(null);
   const [searchParams] = useSearchParams();
@@ -56,6 +57,7 @@ export function CampusMap() {
   const [trackedFriend, setTrackedFriend] = useState<any>(null);
 
   const [currentFloor, setCurrentFloor] = useState<string>('All');
+  const [explodedBuilding, setExplodedBuilding] = useState<any>(null);
   
   const [proximityThreshold, setProximityThreshold] = useState(25);
   const [currentBlockName, setCurrentBlockName] = useState<string | null>(null);
@@ -388,8 +390,15 @@ export function CampusMap() {
         if (!props.node_id && match.node_id) props.node_id = match.node_id;
       }
       setSelectedBuilding(props);
+      // Check if the building has known floors for the exploded view
+      const KNOWN_FLOOR_BUILDINGS = ['main block', 'academic block', 'civil block', 'eb block', 'block 3', 'block 2', 'mechanical block', 'canteen block', 'automobile dept'];
+      const bName = (props.Name || '').toLowerCase().trim();
+      if (KNOWN_FLOOR_BUILDINGS.includes(bName)) {
+        setExplodedBuilding(props);
+      }
     } else {
       setSelectedBuilding(null);
+      setExplodedBuilding(null);
     }
   };
 
@@ -903,6 +912,18 @@ export function CampusMap() {
             />
           )}
         </>
+      )}
+
+      {/* Exploded Building View */}
+      {explodedBuilding && (
+        <ExplodedBuildingView
+          buildingName={explodedBuilding.Name || 'Building'}
+          onClose={() => setExplodedBuilding(null)}
+          onFloorSelect={(floor) => {
+            setCurrentFloor(floor);
+            setExplodedBuilding(null);
+          }}
+        />
       )}
     </div>
   );
