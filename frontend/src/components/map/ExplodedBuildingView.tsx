@@ -73,9 +73,9 @@ export const ExplodedBuildingView: React.FC<ExplodedBuildingViewProps> = ({
       />
 
       {/* Content */}
-      <div className={`relative z-10 flex flex-col items-center gap-6 transition-all duration-500 ${isExploded ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
+      <div className={`relative z-10 flex flex-col items-center justify-between h-screen py-10 transition-all duration-500 ${isExploded ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
         {/* Header */}
-        <div className="flex items-center gap-4 bg-[#110810]/90 backdrop-blur-xl border border-[#C8A951]/30 rounded-2xl px-6 py-4 shadow-2xl">
+        <div className="relative z-50 flex items-center gap-4 bg-[#110810]/90 backdrop-blur-xl border border-[#C8A951]/30 rounded-2xl px-6 py-4 shadow-2xl">
           <div className="p-2.5 bg-gradient-to-br from-[#7B1113] to-[#5a0c0e] rounded-xl text-[#C8A951] shadow-lg shadow-[#7B1113]/30">
             <Building2 size={22} />
           </div>
@@ -97,7 +97,7 @@ export const ExplodedBuildingView: React.FC<ExplodedBuildingViewProps> = ({
 
         {/* 3D Exploded Container */}
         <div
-          className="relative"
+          className="relative flex-1 flex items-center justify-center -mt-10"
           style={{
             perspective: '1200px',
             perspectiveOrigin: '50% 40%',
@@ -177,7 +177,7 @@ export const ExplodedBuildingView: React.FC<ExplodedBuildingViewProps> = ({
         </div>
 
         {/* Floor Legend */}
-        <div className="flex flex-wrap gap-2 justify-center max-w-[350px]">
+        <div className="relative z-50 flex flex-wrap gap-2 justify-center max-w-[350px]">
           {floors.map((floor) => (
             <button
               key={floor}
