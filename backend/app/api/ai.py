@@ -3,8 +3,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import google.generativeai as genai
 import base64
+import json
 
 router = APIRouter()
+
+KNOWLEDGE_FILE = "app/data/ai_knowledge.json"
 
 # Configure the SDK
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
@@ -26,6 +29,25 @@ You are the Easwari Campus AI Assistant. Your job is to help students navigate t
 If the user uploads a photo, analyze it to determine where they are standing or what they are looking at on campus to assist them better.
 Keep your answers very brief and conversational.
 """
+
+CHAT_JSON_SCHEMA_INSTRUCTION = """
+You MUST respond with a valid JSON object matching this schema:
+{
+  "reply": "Your conversational response to the user.",
+  "learned_fact": "If the user provided any new, useful factual information about the campus, state it here as a concise fact. Otherwise, set this to null."
+}
+"""
+
+def get_knowledge_context() -> str:
+    if os.path.exists(KNOWLEDGE_FILE):
+        try:
+            with open(KNOWLEDGE_FILE, "r") as f:
+                facts = json.load(f)
+                if facts:
+                    return "Here are facts you have previously learned from users:\n- " + "\n- ".join(facts) + "\n\n"
+        except Exception:
+            pass
+    return ""
 
 def generate_content(prompt: str, image_base64: str | None = None) -> str:
     if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
@@ -58,9 +80,53 @@ def generate_content(prompt: str, image_base64: str | None = None) -> str:
 async def chat_with_assistant(request: ChatRequest):
     try:
         context = f"User is currently near: {request.locationContext}." if request.locationContext else ""
-        prompt = f"{context}\nUser: {request.message}"
-        text = generate_content(prompt, request.image_base64)
-        return {"reply": text}
+        knowledge = get_knowledge_context()
+        
+        # We override the system instruction for chat to enforce JSON
+        chat_instruction = SYSTEM_INSTRUCTION + "\n" + knowledge + "\n" + CHAT_JSON_SCHEMA_INSTRUCTION
+        
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
+            raise Exception("Google Gemini API key is missing. Please add it to backend/.env")
+            
+        model = genai.GenerativeModel(
+            model_name='gemini-3.1-flash-lite',
+            system_instruction=chat_instruction,
+            generation_config=genai.GenerationConfig(response_mime_type="application/json")
+        )
+        
+        contents = [f"{context}\nUser: {request.message}"]
+        if request.image_base64:
+            if "," in request.image_base64:
+                _, request.image_base64 = request.image_base64.split(",", 1)
+            try:
+                contents.append({
+                    "mime_type": "image/jpeg",
+                    "data": base64.b64decode(request.image_base64)
+                })
+            except Exception as e:
+                print("Failed to decode image:", e)
+                
+        response = model.generate_content(contents)
+        
+        # Parse JSON
+        result = json.loads(response.text)
+        reply = result.get("reply", "Sorry, I couldn't understand that.")
+        learned_fact = result.get("learned_fact")
+        
+        if learned_fact:
+            # Save new fact
+            facts = []
+            if os.path.exists(KNOWLEDGE_FILE):
+                try:
+                    with open(KNOWLEDGE_FILE, "r") as f:
+                        facts = json.load(f)
+                except Exception:
+                    pass
+            facts.append(learned_fact)
+            with open(KNOWLEDGE_FILE, "w") as f:
+                json.dump(facts, f, indent=2)
+                
+        return {"reply": reply}
     except Exception as e:
         error_msg = str(e)
         print(f"AI Chat Error: {error_msg}")
