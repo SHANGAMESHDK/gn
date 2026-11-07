@@ -4,7 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { MAIN_GATE_NODE, nodeById } from '../data';
 import { getState } from '../store';
 import type { XZ } from '../geo';
-import { arArrow } from './arArrow';
+import { arArrow, updateProgress } from './arArrow';
 
 const EYE = 1.6;
 const zee = new THREE.Vector3(0, 0, 1);
@@ -72,6 +72,7 @@ export function ArCamera() {
       pos.current = [pos.current[0] + (s.gps[0] - pos.current[0]) * 0.08, pos.current[1] + (s.gps[1] - pos.current[1]) * 0.08];
     }
     camera.position.set(pos.current[0], EYE, pos.current[1]);
+    updateProgress(pos.current);
     const o = ori.current;
     if (o) {
       const D = THREE.MathUtils.DEG2RAD;

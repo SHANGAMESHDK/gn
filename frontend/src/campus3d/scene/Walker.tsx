@@ -6,6 +6,7 @@ import { moveAxes } from '../input';
 import { buildingById, nodeById, MAIN_GATE_NODE } from '../data';
 import { getState } from '../store';
 import type { XZ } from '../geo';
+import { updateProgress } from './arArrow';
 
 /** First-person walk mode: keys / joystick to move, drag to look. */
 export function Walker() {
@@ -18,8 +19,15 @@ export function Walker() {
     const s = getState();
     const b = s.selectedBuildingId ? buildingById.get(s.selectedBuildingId) : null;
     const startNode = nodeById.get(b?.entranceNodeId ?? MAIN_GATE_NODE)!;
-    pos.current = s.gps && s.gpsOnCampus ? [...s.gps] as XZ : [...startNode.p] as XZ;
-    if (b) yaw.current = Math.atan2(-(b.center[0] - pos.current[0]), -(b.center[1] - pos.current[1]));
+    if (s.route && s.route.points.length > 1) {
+      // walk the planned route: stand at START facing along it
+      const [p0, p1] = s.route.points;
+      pos.current = [...p0] as XZ;
+      yaw.current = Math.atan2(-(p1[0] - p0[0]), -(p1[1] - p0[1]));
+    } else {
+      pos.current = s.gps && s.gpsOnCampus ? [...s.gps] as XZ : [...startNode.p] as XZ;
+      if (b) yaw.current = Math.atan2(-(b.center[0] - pos.current[0]), -(b.center[1] - pos.current[1]));
+    }
     // drag to look
     let drag: { x: number; y: number } | null = null;
     const el = gl.domElement;
@@ -38,6 +46,7 @@ export function Walker() {
   }, [gl]);
 
   useFrame((_, dt) => {
+    updateProgress(pos.current);
     const { f, r, run } = moveAxes();
     const speed = (run ? 6 : 3.2) * Math.min(dt, 0.1);
     const fx = -Math.sin(yaw.current), fz = -Math.cos(yaw.current);

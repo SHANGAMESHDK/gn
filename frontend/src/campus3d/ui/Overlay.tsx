@@ -6,11 +6,11 @@ import { allRooms, indoorPlans } from '../indoor';
 import { WALK_SPEED_MPS } from '../graph';
 import { buildingLabel, t } from '../i18n';
 import { focusOn, setState, useStore } from '../store';
-import { clearRoute, openIndoor, routeToBuilding, routeToNode, selectBuilding, selectRoom, setMode, toast } from '../actions';
+import { clearRoute, setRouteFrom, openIndoor, routeToBuilding, routeToNode, selectBuilding, selectRoom, setMode, toast } from '../actions';
 import { shareCurrent, twoDLink } from '../links';
 import { useVoiceSearch } from './voice';
 import { enterAr } from '../ar';
-import { arArrow } from '../scene/arArrow';
+import { arArrow, routeProgress } from '../scene/arArrow';
 import { ArrowUp, ScanEye } from 'lucide-react';
 import { Joystick } from './Joystick';
 
@@ -120,7 +120,7 @@ function RightTools() {
       </ToolBtn>
       <ToolBtn on={s.showNames} title={t('names', L)} onClick={() => setState({ showNames: !s.showNames })}><Tag size={18} /></ToolBtn>
       <ToolBtn extra title="தமிழ் / English" onClick={() => setState({ lang: L === 'en' ? 'ta' : 'en' })}><Languages size={18} /></ToolBtn>
-      <ToolBtn on={s.routeFrom === 'gps'} title={t('myLocation', L)} onClick={() => setState({ routeFrom: s.routeFrom === 'gps' ? 'gate' : 'gps' })}><LocateFixed size={18} /></ToolBtn>
+      <ToolBtn on={s.routeFrom === 'gps'} title={t('myLocation', L)} onClick={() => setRouteFrom(s.routeFrom === 'gps' ? 'gate' : 'gps')}><LocateFixed size={18} /></ToolBtn>
       <ToolBtn title={t('share', L)} onClick={share}><Share2 size={18} /></ToolBtn>
       <ToolBtn on={s.showPins && s.pins.length > 0} title={t('pins', L)} onClick={() => setState({ showPins: !s.showPins, selectedPinId: null })}><CalendarDays size={18} /></ToolBtn>
       <ToolBtn extra on={s.quality !== 'auto'} title={qLabel} onClick={() => { setState({ quality: nextQ, lowQuality: nextQ === 'low' ? true : nextQ === 'high' ? false : s.lowQuality }); toast(t(nextQ === 'auto' ? 'qAuto' : nextQ === 'low' ? 'qLow' : 'qHigh', L)); }}>
@@ -145,23 +145,32 @@ function RouteCard() {
   const r = s.route!;
   const mins = Math.max(1, Math.round(r.distance / WALK_SPEED_MPS / 60));
   const eta = new Date(now + (r.distance / WALK_SPEED_MPS) * 1000);
-  const fromLabel = s.routeFrom === 'gps' && s.gpsOnCampus ? t('myLocation', L) : t('mainGate', L);
+  const fromValue = s.routeFrom === 'building' && s.routeFromBuildingId ? `b:${s.routeFromBuildingId}` : s.routeFrom;
+  const onFrom = (v: string) => { if (v.startsWith('b:')) setRouteFrom('building', v.slice(2)); else setRouteFrom(v as 'gate' | 'gps'); };
   return (
     <div className="absolute top-16 left-3 right-16 md:right-auto md:w-[420px] pointer-events-auto">
       <div className={`rounded-2xl px-4 py-3 ${glass}`}>
         <div className="flex items-center gap-2 text-[11px] text-white/60">
-          <span className="px-2 py-0.5 rounded-full bg-white/10">● {fromLabel}</span>
+          <select value={fromValue} onChange={(e) => onFrom(e.target.value)} aria-label={t('from', L)}
+            className="px-2 py-0.5 rounded-full bg-white/10 text-white text-[11px] outline-none max-w-[150px]">
+            <option className="text-black" value="gate">● {t('mainGate', L)}</option>
+            <option className="text-black" value="gps">● {t('myLocation', L)}</option>
+            {buildings.filter((b) => b.entranceNodeId != null && b.id !== s.routeTargetId).map((b) => (
+              <option className="text-black" key={b.id} value={`b:${b.id}`}>{buildingLabel(b, L)}</option>
+            ))}
+          </select>
           <span>→</span>
           <span className="px-2 py-0.5 rounded-full bg-[#7B1113]">{s.routeTargetLabel}</span>
         </div>
-        <div className="flex items-end justify-between mt-2">
+        <div className="flex flex-wrap items-end justify-between gap-2 mt-2">
           <div>
-            <div className="text-xl font-extrabold text-[#C8A951]">{Math.round(r.distance)} m · {mins} {t('min', L)}</div>
+            <div className="text-xl font-extrabold text-[#C8A951] whitespace-nowrap">{Math.round(r.distance)} m · {mins} {t('min', L)}<span ref={routeProgress} className="text-sm text-white/80" /></div>
             <div className="text-[11px] text-white/60">{t('eta', L)} {eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setMode('preview')} className="px-3 py-1.5 rounded-lg bg-white/10 text-xs font-semibold flex items-center gap-1"><Play size={12} />{t('preview', L)}</button>
-            <button onClick={clearRoute} className="px-3 py-1.5 rounded-lg bg-white/10 text-xs font-semibold">{t('clear', L)}</button>
+            <button onClick={() => setMode('walk')} className="px-3 py-1.5 rounded-lg bg-[#C8A951] text-[#2d2019] text-xs font-bold whitespace-nowrap flex items-center gap-1"><Footprints size={12} />{t('walkRoute', L)}</button>
+            <button onClick={() => setMode('preview')} className="px-3 py-1.5 rounded-lg bg-white/10 text-xs font-semibold whitespace-nowrap flex items-center gap-1"><Play size={12} />{t('preview', L)}</button>
+            <button onClick={clearRoute} className="px-3 py-1.5 rounded-lg bg-white/10 text-xs font-semibold whitespace-nowrap">{t('clear', L)}</button>
           </div>
         </div>
         {s.routeFrom === 'gps' && !s.gpsOnCampus && <div className="mt-2 text-[11px] text-amber-300">{t('offCampus', L)}</div>}

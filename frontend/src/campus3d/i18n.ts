@@ -52,6 +52,7 @@ const STRINGS = {
   liveNow: { en: 'Live now', ta: 'இப்போது நேரலை' },
   open3d: { en: 'View in 3D', ta: '3D-யில் பார்' },
   ar: { en: 'AR', ta: 'AR' },
+  walkRoute: { en: 'Walk it', ta: 'நடந்து செல்' },
   arNoCamera: { en: 'Camera not available. Allow camera access to use AR.', ta: 'கேமரா கிடைக்கவில்லை. AR-க்கு கேமரா அனுமதி தரவும்.' },
   arHint: { en: 'Hold your phone up. Gold lines are the buildings around you.', ta: 'கைபேசியை உயர்த்திப் பிடிக்கவும். தங்கக் கோடுகள் சுற்றியுள்ள கட்டடங்கள்.' },
   arExit: { en: 'Exit AR', ta: 'AR-இலிருந்து வெளியேறு' },

@@ -45,22 +45,33 @@ export const edges: GraphEdge[] = campus.edges;
 
 const entrances = nodes.filter((n) => n.type === 'Entrance' || n.type === 'BuildingMesh');
 
+// Entrance nodes whose names say which building they belong to. Without this,
+// "nearest entrance" lets e.g. the Temple grab the Girls Hostel gate.
+const ENTRANCE_HINTS: Record<string, string> = {
+  MainBE1: 'Main Block', MainBE2: 'Main Block', EBBE1: 'EB Block', MECHENTRANCE: 'Mechanical Block',
+  CIVILE: 'Civil Block', ACADM1: 'Academic Block', AUTO1: 'Automobile Dept', GIRLHENT: 'Girls Hostel',
+  TRPENTRANCE1: 'TRP', ERPE2: 'TRP', OAT1: 'OAT', OAT2: 'OAT', OAT3: 'OAT', OATENT5: 'OAT', B3E1: 'Block 3',
+};
+const claimed = new Set(entrances.filter((n) => ENTRANCE_HINTS[n.name]).map((n) => n.id));
+const minDist = (poly: XZ[], p: XZ) => Math.min(...poly.map((q) => dist(q, p)));
+
+/** Where a route to this building ends. */
+function pickEntrance(src: string, id: string, poly: XZ[], center: XZ): number | null {
+  const own = nodes.find((n) => n.buildingId === id);
+  if (own) return own.id;
+  const hinted = entrances.filter((n) => ENTRANCE_HINTS[n.name] === src);
+  if (hinted.length) return hinted.reduce((a, n) => (minDist(poly, n.p) < minDist(poly, a.p) ? n : a)).id;
+  const free = entrances.filter((n) => !claimed.has(n.id) && minDist(poly, n.p) < 15);
+  if (free.length) return free.reduce((a, n) => (minDist(poly, n.p) < minDist(poly, a.p) ? n : a)).id;
+  // same rule as the backend: the graph node nearest to the building's centre
+  return nodes.reduce<GraphNode | null>((a, n) => (!a || dist(n.p, center) < dist(a.p, center) ? n : a), null)?.id ?? null;
+}
+
 export const buildings: Building[] = (campus.buildings as RawBuilding[]).map((b) => {
   const poly = b.outline.map(([lng, lat]) => toLocal(lat, lng));
   const center = centroid(poly);
   const radius = Math.max(...poly.map((p) => dist(p, center)));
-  const own = nodes.find((n) => n.buildingId === b.id);
-  let entranceNodeId = own?.id ?? null;
-  if (entranceNodeId === null) {
-    // nearest entrance to the outline, falling back to nearest node of any type
-    const near = (list: GraphNode[]) =>
-      list.reduce<{ n: GraphNode | null; d: number }>((best, n) => {
-        const d = Math.min(...poly.map((p) => dist(p, n.p)));
-        return d < best.d ? { n, d } : best;
-      }, { n: null, d: Infinity });
-    const e = near(entrances);
-    entranceNodeId = (e.d < 40 ? e.n : near(nodes).n)?.id ?? null;
-  }
+  const entranceNodeId = pickEntrance(b.sourceName, b.id, poly, center);
   return {
     ...b,
     kind: b.kind as BuildingKind,

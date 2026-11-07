@@ -15,7 +15,9 @@ export interface State {
   indoor: { buildingId: string; level: number } | null;
   route: Route | null;
   routeTargetLabel: string | null;
-  routeFrom: 'gate' | 'gps';
+  routeFrom: 'gate' | 'gps' | 'building';
+  /** start building when routeFrom is 'building' */
+  routeFromBuildingId: string | null;
   showNames: boolean;
   timeMode: TimeMode;
   lang: Lang;
@@ -52,6 +54,7 @@ let state: State = {
   route: null,
   routeTargetLabel: null,
   routeFrom: 'gate',
+  routeFromBuildingId: null,
   showNames: true,
   timeMode: 'auto',
   lang: (() => { try { return (localStorage.getItem('eecnav3d.lang') as Lang) || 'en'; } catch { return 'en'; } })(),
