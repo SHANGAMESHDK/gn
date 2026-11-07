@@ -286,21 +286,20 @@
   },
   {
    "id": "0058A4BC193FFFF3A024",
-   "name": "Admin Block",
+   "name": "Office",
    "sourceName": "Office",
    "kind": "block",
-   "floors": 5,
-   "floorsEstimated": false,
-   "height": 17.0,
+   "floors": 2,
+   "floorsEstimated": true,
+   "height": 8.0,
    "color": "#d4ff00",
    "walkable": false,
    "style": {
     "roof": "flat",
     "trim": "#e8c44a",
-    "wall": "#f4f2ec",
-    "canopy": "green"
+    "wall": "#f4f2ec"
    },
-   "description": "Administrative Block: Principal's office and college administration.",
+   "description": "College office block (the Admin Block is a separate building).",
    "outline": [
     [
      80.1798723,

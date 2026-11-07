@@ -21,7 +21,7 @@ export interface Pin {
 interface Stall { id: number; name: string; description?: string; category?: string; building?: string; floor?: number; node_id?: number | null; status?: string; opening_time?: string; closing_time?: string }
 
 // Names the backend uses that differ from the 3D building names.
-const ALIASES: Record<string, string> = { 'pg block': 'Civil Block', 'ece block': 'EB Block', oat: 'OAT', 'admin block': 'Office' };
+const ALIASES: Record<string, string> = { 'pg block': 'Civil Block', 'ece block': 'EB Block', oat: 'OAT' };
 
 function building(name?: string): Building | undefined {
   if (!name) return undefined;

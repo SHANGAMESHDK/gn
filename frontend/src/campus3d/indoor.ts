@@ -46,7 +46,7 @@ const PROFILES: Record<string, Profile> = {
   'Mechanical Block': { prefix: 'ME', dept: () => 'Mechanical', named: (l, n) => (l === 0 && n % 3 === 0 ? { type: 'lab', name: 'Workshop' } : null) },
   'EB Block': { prefix: 'EB', dept: (l) => (l < 4 ? 'ECE' : 'EIE') },
   'Automobile Dept': { prefix: 'AU', dept: () => 'Automobile', named: (l, n) => (l === 0 && n % 2 === 0 ? { type: 'lab', name: 'Engine Lab' } : null) },
-  Office: { prefix: 'AD', dept: () => 'Admin', named: (l, n) => (l === 0 && n === 2 ? { type: 'office', name: "Principal's Office" } : { type: n % 5 === 0 ? 'washroom' : 'office', name: n % 5 === 0 ? 'Washroom' : 'Office' }) },
+  Office: { prefix: 'OF', dept: () => 'Admin', named: (_l, n) => ({ type: n % 5 === 0 ? 'washroom' : 'office', name: n % 5 === 0 ? 'Washroom' : 'Office' }) },
   'Canteen Block': { prefix: 'CN', dept: () => 'Canteen', named: (l, n) => (l === 0 ? { type: 'hall', name: n % 2 ? 'Food Court' : 'Dining Hall' } : null) },
   'Girls Hostel': { prefix: 'GH', dept: () => 'Hostel', named: (_l, n) => ({ type: n % 6 === 0 ? 'washroom' : 'staff', name: n % 6 === 0 ? 'Washroom' : 'Hostel Room' }) },
   'Dental Block': { prefix: 'DC', dept: () => 'Dental' },

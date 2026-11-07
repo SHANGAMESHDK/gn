@@ -41,12 +41,12 @@ cd backend && python scripts/export_campus3d.py
 Placeholders that need real data:
 | What | Where | Status |
 | --- | --- | --- |
-| Floor counts | `FLOORS_FROM_PHOTOS` in `backend/scripts/export_campus3d.py` | Main 6, Mechanical 8, Civil 7, Admin 5 from photos; the rest estimated from height / 3.4 m |
-| Facade style per building | `STYLE_BY_NAME` in the same script | Main, Civil, Mechanical, Admin from photos; the rest are guesses |
+| Floor counts | `FLOORS_FROM_PHOTOS` in `backend/scripts/export_campus3d.py` | Main 6, Mechanical 8, Civil 7 from photos; the rest estimated from height / 3.4 m |
+| Facade style per building | `STYLE_BY_NAME` in the same script | Main, Civil, Mechanical from photos; the rest are guesses. The Admin Block photo (green arched canopy) is not mapped to a footprint yet |
 | Building descriptions | `ABOUT` in the same script | From public sources (Wikipedia, careers360); departments for Academic, Block 2, Block 3 not confirmed |
 | Rooms in every block | `PROFILES` / `REAL_PLANS` in `indoor.ts` | Sample rooms per department. Replace with the real annotated plans |
 | Compound wall line | `CompoundWall` in `scene/Details.tsx` | Convex hull of the campus, 6 m out, open at every gate node |
-| "Office" is shown as "Admin Block" | `DISPLAY_NAME` in the export script | Confirmed by ram |
+| Which footprint is the Admin Block | `DISPLAY_NAME` / `STYLE_BY_NAME` in the export script | Not "Office" (ram, 2026-11-07); waiting to hear which block it is |
 
 ## Layout
 - `geo.ts` lat/lng to local metres (x east, z south)

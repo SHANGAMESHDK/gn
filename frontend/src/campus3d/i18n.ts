@@ -71,7 +71,7 @@ export const TA_NAMES: Record<string, string> = {
   'Block 2': 'கட்டடம் 2',
   'Block 3': 'கட்டடம் 3',
   'Canteen Block': 'உணவக கட்டடம்',
-  Office: 'நிர்வாக கட்டடம்',
+  Office: 'அலுவலகம்',
   'Dental Block': 'பல் மருத்துவ கட்டடம்',
   'Mechanical Block': 'இயந்திரவியல் கட்டடம்',
   'Civil Block': 'கட்டடவியல் கட்டடம்',

@@ -87,7 +87,7 @@ KIND_BY_NAME = {
     "Staff Parking": "parking", "Playground": "ground", "Cricket Nets": "nets",
     "OAT": "plaza", "TRP": "auditorium", "Temple": "temple",
 }
-DISPLAY_NAME = {"Office": "Admin Block", "TRP": "TRP Auditorium", "OAT": "Open Air Theatre (OAT)", "Civil Block": "Civil & PG Block"}
+DISPLAY_NAME = {"TRP": "TRP Auditorium", "OAT": "Open Air Theatre (OAT)", "Civil Block": "Civil & PG Block"}
 # What each building houses. Sources: en.wikipedia.org/wiki/Easwari_Engineering_College (blocks,
 # departments, library in the PG block), careers360.com facilities page (library floors, halls),
 # ram's photos (signboards). "likely" marks a guess that still needs confirming.
@@ -97,7 +97,7 @@ ABOUT = {
     "Mechanical Block": "Mechanical Engineering department and workshops.",
     "EB Block": "Electronics block (likely): Electronics & Communication and Electronics & Instrumentation.",
     "Automobile Dept": "Automobile Engineering department and labs.",
-    "Office": "Administrative Block: Principal's office and college administration.",
+    "Office": "College office block (the Admin Block is a separate building).",
     "Canteen Block": "Canteen and food court.",
     "Dental Block": "SRM Dental College (beside the engineering college).",
     "Girls Hostel": "Girls' hostel.",
@@ -110,12 +110,12 @@ ABOUT = {
     "Playground": "Football field and sports ground.",
     "Cricket Nets": "Cricket practice nets.",
 }
-FLOORS_FROM_PHOTOS = {"Main Block": 6, "Mechanical Block": 8, "Civil Block": 7, "Office": 5}
+FLOORS_FROM_PHOTOS = {"Main Block": 6, "Mechanical Block": 8, "Civil Block": 7}
 STYLE_BY_NAME = {
     "Main Block": {"roof": "blue-gable", "trim": "#e8c44a", "wall": "#f4f1ea", "courtyard": True},
     "Civil Block": {"roof": "grey-sheet", "trim": "#e6b83a", "wall": "#f6f3ec", "pilasters": True},
     "Mechanical Block": {"roof": "flat", "trim": "#e6c25a", "wall": "#f2f0ea", "ribbon": True},
-    "Office": {"roof": "flat", "trim": "#e8c44a", "wall": "#f4f2ec", "canopy": "green"},
+    "Office": {"roof": "flat", "trim": "#e8c44a", "wall": "#f4f2ec"},
     "EB Block": {"roof": "flat", "trim": "#e0b94d", "wall": "#f3f0e8", "pilasters": True},
     "Block 2": {"roof": "flat", "trim": "#e2c25a", "wall": "#f1eee6"},
     "Block 3": {"roof": "flat", "trim": "#e2c25a", "wall": "#f1eee6", "ribbon": True},
