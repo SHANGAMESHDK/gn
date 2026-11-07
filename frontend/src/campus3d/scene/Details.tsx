@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { buildings, edges, nodeById, nodes, solidBuildings } from '../data';
-import { centroid, pointInPolygon, rng, type XZ } from '../geo';
+import { pointInPolygon, rng, type XZ } from '../geo';
+import { campusRing } from '../outline';
 import { ironGateTexture, plaqueTexture, railingTexture, srmPanelTexture } from '../textures';
 import { flatMaterial, nightMaterials } from './materials';
 import { useStore } from '../store';
@@ -122,23 +123,10 @@ function EntranceArch() {
   );
 }
 
-/** Convex hull (monotone chain) of a set of points. */
-function hull(points: XZ[]): XZ[] {
-  const p = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  const cross = (o: XZ, a: XZ, b: XZ) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-  const lower: XZ[] = [], upper: XZ[] = [];
-  for (const q of p) { while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], q) <= 0) lower.pop(); lower.push(q); }
-  for (const q of p.reverse()) { while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], q) <= 0) upper.pop(); upper.push(q); }
-  return lower.slice(0, -1).concat(upper.slice(0, -1));
-}
-
 /** Compound wall with a black railing around the campus, open at every gate. */
 function CompoundWall() {
   const { wall, rail } = useMemo(() => {
-    const pts: XZ[] = [...buildings.flatMap((b) => b.poly), ...nodes.map((n) => n.p)];
-    const h = hull(pts);
-    const c = centroid(h);
-    const ring = h.map((p) => { const dx = p[0] - c[0], dz = p[1] - c[1], l = Math.hypot(dx, dz) || 1; return [p[0] + (dx / l) * 6, p[1] + (dz / l) * 6] as XZ; });
+    const ring = campusRing(6);
     const pieces: { p: XZ; ang: number; len: number }[] = [];
     for (let i = 0; i < ring.length; i++) {
       const a = ring[i], b = ring[(i + 1) % ring.length];

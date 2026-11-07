@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, X, Navigation, Footprints, Car, Map as MapIcon, Moon, Sun, Clock, Languages, Maximize, Layers, Play, Tag, LocateFixed, Building2, DoorOpen, Square, Mic, MicOff, Share2, Gauge, CalendarDays, Store } from 'lucide-react';
+import { Search, X, Navigation, Footprints, Car, Map as MapIcon, Moon, Sun, Clock, Languages, Maximize, Layers, Play, Tag, LocateFixed, Building2, DoorOpen, Square, Mic, MicOff, Share2, Gauge, CalendarDays, Store, MoreHorizontal } from 'lucide-react';
 import { buildings, buildingById, FLOOR_HEIGHT, MAIN_GATE_NODE, nodeById } from '../data';
 import { allRooms, indoorPlans } from '../indoor';
 import { WALK_SPEED_MPS } from '../graph';
@@ -14,7 +14,7 @@ import { arArrow } from '../scene/arArrow';
 import { ArrowUp, ScanEye } from 'lucide-react';
 import { Joystick } from './Joystick';
 
-const glass = 'bg-[#1b1216]/85 backdrop-blur-md border border-white/10 text-white shadow-xl';
+const glass = 'bg-[#33090d]/88 backdrop-blur-md border border-[#C8A951]/30 text-white shadow-xl';
 
 export function Overlay() {
   const s = useStore((x) => x);
@@ -92,10 +92,10 @@ function TopBar() {
   );
 }
 
-function ToolBtn({ on, title, onClick, children }: { on?: boolean; title: string; onClick: () => void; children: React.ReactNode }) {
+function ToolBtn({ on, title, onClick, children, extra }: { on?: boolean; title: string; onClick: () => void; children: React.ReactNode; extra?: boolean }) {
   return (
     <button title={title} aria-label={title} onClick={onClick}
-      className={`w-11 h-11 rounded-full flex items-center justify-center ${glass} ${on ? '!bg-[#C8A951] !text-[#2d2019]' : ''}`}>
+      className={`w-11 h-11 rounded-full items-center justify-center ${extra ? 'hidden md:flex group-data-[open=true]:flex' : 'flex'} ${glass} ${on ? '!bg-[#C8A951] !text-[#2d2019]' : ''}`}>
       {children}
     </button>
   );
@@ -105,6 +105,7 @@ function RightTools() {
   const s = useStore((x) => x);
   const L = s.lang;
   const nextTime = s.timeMode === 'auto' ? 'day' : s.timeMode === 'day' ? 'night' : 'auto';
+  const [more, setMore] = useState(false);
   const nextQ = s.quality === 'auto' ? 'low' : s.quality === 'low' ? 'high' : 'auto';
   const qLabel = t(s.quality === 'auto' ? 'qAuto' : s.quality === 'low' ? 'qLow' : 'qHigh', L);
   const share = async () => {
@@ -112,20 +113,21 @@ function RightTools() {
     if (r === 'copied') toast(t('copied', L)); else if (r === 'failed' && !navigator.share) toast(t('shareFailed', L));
   };
   return (
-    <div className="absolute top-3 right-3 flex flex-col gap-2 pointer-events-auto">
-      <ToolBtn title="Fullscreen" onClick={() => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); }}><Maximize size={18} /></ToolBtn>
-      <ToolBtn title={t(s.timeMode, L)} onClick={() => setState({ timeMode: nextTime })}>
+    <div data-open={more} className="group absolute top-3 right-3 flex flex-col gap-2 pointer-events-auto max-h-[calc(100%-11rem)] md:max-h-none overflow-y-auto">
+      <ToolBtn extra title="Fullscreen" onClick={() => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); }}><Maximize size={18} /></ToolBtn>
+      <ToolBtn extra title={t(s.timeMode, L)} onClick={() => setState({ timeMode: nextTime })}>
         {s.timeMode === 'auto' ? <Clock size={18} /> : s.timeMode === 'day' ? <Sun size={18} /> : <Moon size={18} />}
       </ToolBtn>
       <ToolBtn on={s.showNames} title={t('names', L)} onClick={() => setState({ showNames: !s.showNames })}><Tag size={18} /></ToolBtn>
-      <ToolBtn title="தமிழ் / English" onClick={() => setState({ lang: L === 'en' ? 'ta' : 'en' })}><Languages size={18} /></ToolBtn>
+      <ToolBtn extra title="தமிழ் / English" onClick={() => setState({ lang: L === 'en' ? 'ta' : 'en' })}><Languages size={18} /></ToolBtn>
       <ToolBtn on={s.routeFrom === 'gps'} title={t('myLocation', L)} onClick={() => setState({ routeFrom: s.routeFrom === 'gps' ? 'gate' : 'gps' })}><LocateFixed size={18} /></ToolBtn>
       <ToolBtn title={t('share', L)} onClick={share}><Share2 size={18} /></ToolBtn>
       <ToolBtn on={s.showPins && s.pins.length > 0} title={t('pins', L)} onClick={() => setState({ showPins: !s.showPins, selectedPinId: null })}><CalendarDays size={18} /></ToolBtn>
-      <ToolBtn on={s.quality !== 'auto'} title={qLabel} onClick={() => { setState({ quality: nextQ, lowQuality: nextQ === 'low' ? true : nextQ === 'high' ? false : s.lowQuality }); toast(t(nextQ === 'auto' ? 'qAuto' : nextQ === 'low' ? 'qLow' : 'qHigh', L)); }}>
+      <ToolBtn extra on={s.quality !== 'auto'} title={qLabel} onClick={() => { setState({ quality: nextQ, lowQuality: nextQ === 'low' ? true : nextQ === 'high' ? false : s.lowQuality }); toast(t(nextQ === 'auto' ? 'qAuto' : nextQ === 'low' ? 'qLow' : 'qHigh', L)); }}>
         <span className="relative"><Gauge size={18} />{s.lowQuality && <span className="absolute -bottom-1.5 -right-2 text-[8px] font-black">LO</span>}</span>
       </ToolBtn>
-      <Link to={twoDLink()} title={t('map2d', L)} className={`w-11 h-11 rounded-full flex items-center justify-center ${glass}`}><Layers size={18} /></Link>
+      <Link to={twoDLink()} title={t('map2d', L)} className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center ${glass}`}><Layers size={18} /></Link>
+      <button onClick={() => setMore(!more)} title="More" aria-label="More tools" className={`md:hidden w-11 h-11 shrink-0 rounded-full flex items-center justify-center ${glass}`}>{more ? <X size={18} /> : <MoreHorizontal size={18} />}</button>
     </div>
   );
 }

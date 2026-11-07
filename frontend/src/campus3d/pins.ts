@@ -55,7 +55,7 @@ export async function loadPins() {
   for (const e of Array.isArray(events) ? events : []) {
     const b = building(e.building_id);
     if (!b) continue;
-    out.push({ id: `evt:${e.id}`, kind: 'event', title: e.title, sub: `${e.time} · ${b.name}`, detail: [e.description, e.organizer && `By ${e.organizer}`].filter(Boolean).join(' '), live: !!e.is_live, p: [...b.center] as XZ, buildingId: b.id, nodeId: b.entranceNodeId });
+    out.push({ id: `evt:${e.id}`, kind: 'event', title: e.title, sub: `${e.time} · ${b.name}`, detail: [e.description, e.organizer && `By ${e.organizer}`].filter(Boolean).join(' '), live: !!e.is_live, p: [...(b.entranceNodeId != null ? nodeById.get(b.entranceNodeId)?.p ?? b.center : b.center)] as XZ, buildingId: b.id, nodeId: b.entranceNodeId });
   }
   for (const s of (Array.isArray(stalls) ? stalls : []) as Stall[]) {
     if (s.status && s.status !== 'active') continue;

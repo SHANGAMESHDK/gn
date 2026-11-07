@@ -19,6 +19,10 @@ import { useTelemetry } from '../../hooks/useTelemetry';
 import { Activity, Thermometer, MapPin, Store, Box } from 'lucide-react';
 import { FloorPlanViewer } from './FloorPlanViewer';
 import { ExplodedBuildingView } from './ExplodedBuildingView';
+// CARTO basemaps now need an API key: set VITE_CARTO_KEY (Vercel env / .env.local).
+const CARTO_KEY = import.meta.env.VITE_CARTO_KEY as string | undefined;
+const CARTO_KEY_QUERY = CARTO_KEY ? `?key=${encodeURIComponent(CARTO_KEY)}` : '';
+
 export function CampusMap() {
   const mapRef = useRef<MapRef>(null);
   const [searchParams] = useSearchParams();
@@ -527,9 +531,9 @@ export function CampusMap() {
               osm: {
                 type: 'raster',
                 tiles: [
-                  weather && !weather.isDay
+                  (weather && !weather.isDay
                     ? 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-                    : 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+                    : 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png') + CARTO_KEY_QUERY
                 ],
                 tileSize: 256,
                 attribution: '&copy; <a href="https://carto.com/">CARTO</a>'

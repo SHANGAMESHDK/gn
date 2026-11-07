@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Sky, Stars } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
+import { THEME } from '../theme';
 import SunCalc from 'suncalc';
 import { ORIGIN, rng } from '../geo';
 import { nightMaterials } from './materials';
@@ -25,6 +26,7 @@ export function Environment() {
   const ar = useStore((s) => s.mode === 'ar');
   const sun = useRef<THREE.DirectionalLight>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
+  const dome = useRef<THREE.ShaderMaterial>(null);
   const get = useThree((st) => st.get);
   const [sunState, setSunState] = useState(() => sunFor(timeMode, new Date()));
 
@@ -42,13 +44,16 @@ export function Environment() {
     if (light) {
       light.position.copy(dir).multiplyScalar(300);
       light.intensity = (rain ? 1.1 : 2.4) * day;
-      light.color.setHSL(0.1, 0.6, 0.55 + 0.4 * day);
+      light.color.setHSL(0.09, 0.7, 0.55 + 0.35 * day);
     }
     if (hemi.current) hemi.current.intensity = 0.25 + 0.75 * day * (rain ? 0.8 : 1);
     const scene = get().scene;
     if (ar) { scene.background = null; return; }
-    const bg = new THREE.Color().lerpColors(new THREE.Color('#0b1020'), new THREE.Color(rain ? '#9aa6b2' : '#bfe3ff'), day);
-    scene.background = bg;
+    const top = new THREE.Color().lerpColors(new THREE.Color(THEME.skyNightTop), new THREE.Color(rain ? THEME.skyRainTop : THEME.skyDayTop), day);
+    const hor = new THREE.Color().lerpColors(new THREE.Color(THEME.skyNightHorizon), new THREE.Color(rain ? THEME.skyRainHorizon : THEME.skyDayHorizon), day);
+    const bg = hor;
+    scene.background = null;
+    if (dome.current) { (dome.current.uniforms.top.value as THREE.Color).copy(top); (dome.current.uniforms.horizon.value as THREE.Color).copy(hor); }
     if (scene.fog) (scene.fog as THREE.Fog).color.copy(bg);
     for (const m of nightMaterials) m.emissiveIntensity = (1 - day) * 1.2;
   });
@@ -56,8 +61,8 @@ export function Environment() {
   const { alt, dir } = sunState;
   return (
     <>
-      {!ar && <fog attach="fog" args={['#bfe3ff', rain ? 160 : 420, rain ? 700 : 1400]} />}
-      <hemisphereLight ref={hemi} args={['#dff2ff', '#5d7a3a', 0.9]} />
+      {!ar && <fog attach="fog" args={[THEME.skyDayHorizon, rain ? 160 : 420, rain ? 700 : 1400]} />}
+      <hemisphereLight ref={hemi} args={['#fff1dc', '#8a6a4a', 0.9]} />
       <directionalLight
         ref={sun}
         castShadow={!low}
@@ -70,7 +75,7 @@ export function Environment() {
         shadow-camera-far={900}
         shadow-bias={-0.0004}
       />
-      {alt > -0.05 && !rain && !low && !ar && <Sky sunPosition={[dir.x, dir.y, dir.z]} distance={4000} turbidity={6} rayleigh={1.2} />}
+      {!ar && <SkyDome ref={dome} sun={dir} />}
       {alt < 0.05 && !ar && <Stars radius={900} depth={60} count={low ? 600 : 2500} factor={6} fade />}
       {alt < 0.1 && <StreetLights />}
       {rain && !ar && <Rain count={low ? 800 : 3000} />}
@@ -111,3 +116,35 @@ function Rain({ count }: { count: number }) {
   });
   return <lineSegments ref={ref} geometry={geo} material={mat} />;
 }
+
+/** Warm gradient sky (no blue): maroon dusk at night, cream to apricot by day, with a soft sun glow. */
+const SkyDome = ({ ref, sun }: { ref: React.Ref<THREE.ShaderMaterial>; sun: THREE.Vector3 }) => {
+  const uniforms = useMemo(() => ({
+    top: { value: new THREE.Color(THEME.skyDayTop) },
+    horizon: { value: new THREE.Color(THEME.skyDayHorizon) },
+    sunDir: { value: new THREE.Vector3(0, 1, 0) },
+  }), []);
+  useEffect(() => { uniforms.sunDir.value.copy(sun).normalize(); }, [sun, uniforms]);
+  return (
+    <mesh renderOrder={-1} frustumCulled={false}>
+      <sphereGeometry args={[3000, 32, 16]} />
+      <shaderMaterial
+        ref={ref}
+        side={THREE.BackSide}
+        depthWrite={false}
+        fog={false}
+        uniforms={uniforms}
+        vertexShader={`varying vec3 vDir; void main(){ vDir = normalize(position); vec4 p = modelViewMatrix * vec4(position + cameraPosition, 1.0); gl_Position = projectionMatrix * p; }`}
+        fragmentShader={`uniform vec3 top; uniform vec3 horizon; uniform vec3 sunDir; varying vec3 vDir;
+          void main(){
+            float h = clamp(vDir.y, 0.0, 1.0);
+            vec3 c = mix(horizon, top, pow(h, 0.55));
+            float s = max(dot(normalize(vDir), normalize(sunDir)), 0.0);
+            c += vec3(1.0, 0.82, 0.55) * pow(s, 64.0) * 0.6 * step(0.0, sunDir.y);
+            if (vDir.y < 0.0) c = horizon;
+            gl_FragColor = vec4(c, 1.0);
+          }`}
+      />
+    </mesh>
+  );
+};

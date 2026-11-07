@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { labelPortal } from './labelPortal';
 import { useStore } from '../store';
+import { THEME } from '../theme';
 
 /** Glowing animated walking path with START / END pins. */
 export function RouteLine() {
@@ -11,8 +12,8 @@ export function RouteLine() {
   const tex = useMemo(() => {
     const c = document.createElement('canvas'); c.width = 64; c.height = 16;
     const g = c.getContext('2d')!;
-    g.fillStyle = '#2fd6ff'; g.fillRect(0, 0, 64, 16);
-    g.fillStyle = '#e6fbff'; for (let x = 0; x < 64; x += 32) { g.beginPath(); g.moveTo(x, 2); g.lineTo(x + 14, 8); g.lineTo(x, 14); g.fill(); }
+    g.fillStyle = THEME.route; g.fillRect(0, 0, 64, 16);
+    g.fillStyle = THEME.routeChevron; for (let x = 0; x < 64; x += 32) { g.beginPath(); g.moveTo(x, 2); g.lineTo(x + 14, 8); g.lineTo(x, 14); g.fill(); }
     const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return t;
   }, []);
   const geo = useMemo(() => {
@@ -38,8 +39,8 @@ export function RouteLine() {
       <mesh geometry={geo}>
         <meshBasicMaterial ref={mat} map={tex} transparent toneMapped={false} />
       </mesh>
-      <Pin at={start} label="START" color="#16a34a" />
-      <Pin at={end} label="END" color="#dc2626" />
+      <Pin at={start} label="START" color={THEME.start} />
+      <Pin at={end} label="END" color={THEME.end} />
     </group>
   );
 }

@@ -2,20 +2,56 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { bounds, buildings, edges, nodeById, nodes, solidBuildings, type Building } from '../data';
 import { pointInPolygon } from '../geo';
-import { fieldTexture, grassTexture, parkingTexture, pavingTexture } from '../textures';
-import { flatShape, orientedSize } from './shapes';
+import { fieldTexture, grassTexture, parkingTexture, pavingTexture, signTexture, tableTexture } from '../textures';
+import { campusRing } from '../outline';
+import { THEME } from '../theme';
+import { extrude, flatShape, orientedSize } from './shapes';
 import { flatMaterial } from './materials';
 import { setState, focusOn } from '../store';
 import { Details } from './Details';
 
-function Grass() {
-  const w = bounds.maxX - bounds.minX + 1600, d = bounds.maxZ - bounds.minZ + 1600;
-  const tex = useMemo(() => { const t = grassTexture().clone(); t.repeat.set(w / 20, d / 20); t.needsUpdate = true; return t; }, [w, d]);
+const PLINTH = 4;
+
+/**
+ * The campus sits on a maroon plinth like an architect's scale model, on a
+ * light table with a cutting-mat grid. The lawn is the top of the plinth.
+ */
+function ModelBase() {
+  const { lawn, sides, table, plate, plateAt } = useMemo(() => {
+    const ring = campusRing(22);
+    const lawnTex = grassTexture().clone(); lawnTex.repeat.set(1 / 20, 1 / 20); lawnTex.needsUpdate = true;
+    const lawn = flatShape(ring, 0);
+    const sides = extrude(ring, PLINTH).translate(0, -PLINTH, 0);
+    const w = bounds.maxX - bounds.minX + 2400, d = bounds.maxZ - bounds.minZ + 2400;
+    const tableTex = tableTexture().clone(); tableTex.repeat.set(w / 40, d / 40); tableTex.needsUpdate = true;
+    // brass name plate on the plinth edge that faces south (towards the default camera)
+    let best = 0, bz = -Infinity;
+    ring.forEach((p, i) => { const q = ring[(i + 1) % ring.length]; const mz = (p[1] + q[1]) / 2; if (mz > bz && Math.hypot(q[0] - p[0], q[1] - p[1]) > 40) { bz = mz; best = i; } });
+    const a = ring[best], b = ring[(best + 1) % ring.length];
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    const nx = (b[1] - a[1]), nz = -(b[0] - a[0]); const nl = Math.hypot(nx, nz) || 1;
+    return {
+      lawn, sides,
+      table: { w, d, tex: tableTex },
+      plate: signTexture('EASWARI ENGINEERING COLLEGE', '#b8954a', '#3a1a1c', 'Ramapuram, Chennai · SRM Group'),
+      plateAt: { x: (a[0] + b[0]) / 2 + (nx / nl) * 0.06, z: (a[1] + b[1]) / 2 + (nz / nl) * 0.06, rot: -ang, lawnTex },
+    };
+  }, []);
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(bounds.minX + bounds.maxX) / 2, 0, (bounds.minZ + bounds.maxZ) / 2]} receiveShadow>
-      <planeGeometry args={[w, d]} />
-      <meshStandardMaterial map={tex} roughness={1} />
-    </mesh>
+    <group>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(bounds.minX + bounds.maxX) / 2, -PLINTH, (bounds.minZ + bounds.maxZ) / 2]} receiveShadow>
+        <planeGeometry args={[table.w, table.d]} />
+        <meshStandardMaterial map={table.tex} roughness={1} />
+      </mesh>
+      <mesh geometry={sides} material={[flatMaterial(THEME.goldLight), flatMaterial(THEME.plinth, { roughness: 0.6 })]} castShadow receiveShadow />
+      <mesh geometry={lawn} receiveShadow position={[0, 0.01, 0]}>
+        <meshStandardMaterial map={plateAt.lawnTex} roughness={1} />
+      </mesh>
+      <mesh position={[plateAt.x, -PLINTH / 2, plateAt.z]} rotation={[0, plateAt.rot, 0]}>
+        <planeGeometry args={[34, 2.4]} />
+        <meshStandardMaterial map={plate} metalness={0.6} roughness={0.35} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
   );
 }
 
@@ -55,7 +91,7 @@ function Roads() {
     for (let i = 0; i < nrm.count; i++) nrm.setXYZ(i, 0, 1, 0);
     return g;
   }, []);
-  return <mesh geometry={geo} material={flatMaterial('#8c8f94', { side: THREE.DoubleSide })} receiveShadow />;
+  return <mesh geometry={geo} material={flatMaterial(THEME.road, { side: THREE.DoubleSide })} receiveShadow />;
 }
 
 function tiled(tex: THREE.Texture, b: Building, tile: number) {
@@ -212,7 +248,7 @@ export function Ground() {
   const areas = buildings.filter((b) => ['parking', 'ground', 'plaza'].includes(b.kind));
   return (
     <group>
-      <Grass />
+      <ModelBase />
       <Roads />
       {areas.map((b) => <GroundArea key={b.id} b={b} />)}
       <ParkedCars />

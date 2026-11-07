@@ -24,8 +24,10 @@ function onPick(e: ThreeEvent<PointerEvent>, b: Building) {
   focusOn(b.center, Math.max(70, b.radius * 2.6));
 }
 
+const INK = new THREE.LineBasicMaterial({ color: '#4a0a0c', transparent: true, opacity: 0.45 });
+
 function Block({ b, dim }: { b: Building; dim: boolean }) {
-  const { body, roof, parapet, mats } = useMemo(() => {
+  const { body, roof, parapet, mats, edges } = useMemo(() => {
     const holes = courtyardOf(b);
     const h = b.floors * FLOOR_HEIGHT;
     const wall = b.style.wall ?? '#f3efe6';
@@ -34,6 +36,7 @@ function Block({ b, dim }: { b: Building; dim: boolean }) {
     const roofMat = flatMaterial(ROOF[b.style.roof ?? 'flat']);
     return {
       body: extrude(b.poly, h, holes),
+      edges: new THREE.EdgesGeometry(extrude(b.poly, h + 0.9, holes), 25),
       roof: flatShape(b.poly, h + 0.02, holes),
       parapet: extrude(b.poly, 0.9, holes).translate(0, h, 0),
       mats: [roofMat, facade],
@@ -44,6 +47,8 @@ function Block({ b, dim }: { b: Building; dim: boolean }) {
   return (
     <group onPointerDown={(e) => onPick(e, b)} visible={!dim}>
       <mesh geometry={body} material={mats} castShadow receiveShadow />
+      {/* thin ink outline: the "scale model" look */}
+      <lineSegments geometry={edges} material={INK} />
       <mesh geometry={roof} material={mats[0]} receiveShadow />
       {!sloped && <mesh geometry={parapet} material={flatMaterial('#efe9dc')} castShadow />}
       {sloped && <SlopedRoof b={b} />}

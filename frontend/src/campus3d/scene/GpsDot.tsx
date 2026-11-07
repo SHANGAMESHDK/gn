@@ -16,8 +16,8 @@ export function GpsDot() {
   if (!gps || !on) return null;
   return (
     <group position={[gps[0], 0.3, gps[1]]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.4, 24]} /><meshBasicMaterial color="#2563eb" toneMapped={false} /></mesh>
-      <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[1.5, 2, 32]} /><meshBasicMaterial color="#3b82f6" transparent toneMapped={false} /></mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.4, 24]} /><meshBasicMaterial color="#7B1113" toneMapped={false} /></mesh>
+      <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[1.5, 2, 32]} /><meshBasicMaterial color="#C8A951" transparent toneMapped={false} /></mesh>
     </group>
   );
 }

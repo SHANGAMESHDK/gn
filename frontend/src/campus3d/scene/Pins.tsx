@@ -17,7 +17,7 @@ export function Pins() {
       {pins.map((p) => {
         const b = p.buildingId ? buildingById.get(p.buildingId) : undefined;
         const onBlock = b && b.kind === 'block' && Math.hypot(p.p[0] - b.center[0], p.p[1] - b.center[1]) < b.radius;
-        const y = onBlock ? b!.floors * FLOOR_HEIGHT + 14 : 10;
+        const y = onBlock ? b!.floors * FLOOR_HEIGHT + 14 : 9;
         const active = selected === p.id;
         const Icon = p.kind === 'event' ? CalendarDays : Store;
         return (

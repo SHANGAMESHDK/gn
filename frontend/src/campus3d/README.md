@@ -16,6 +16,8 @@ Everything is generated in code from the GIS data, so there are no 3D model file
 - 2D and 3D hand off to each other with the same building selected
 - Graphics quality: auto (frame-rate monitor), low (no shadows, fewer trees, no sky) or high
 - Voice search in Indian English or Tamil (Web Speech API, hidden where unsupported)
+- AR mode: phone camera behind the scene, aimed by compass + tilt, with gold building outlines, labels, pins and an arrow along the route; hands off to the full `/ar` page
+- "Campus Model" look (`theme.ts`): the campus sits on a maroon plinth like an architect's model, warm sky, sage lawn with a survey grid, ink outlines, gold route, Gulmohar and laburnum trees
 - Tamil / English interface, 2D fallback when WebGL is missing
 
 ## Links

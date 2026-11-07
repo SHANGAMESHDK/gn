@@ -76,7 +76,7 @@ export function pavingTexture() {
 
 export function parkingTexture() {
   return canvasTex('parking', 128, 128, (g) => {
-    g.fillStyle = '#4c4f54'; g.fillRect(0, 0, 128, 128);
+    g.fillStyle = '#6e645a'; g.fillRect(0, 0, 128, 128);
     g.fillStyle = '#e8e8e8';
     for (let x = 0; x < 128; x += 32) g.fillRect(x, 0, 3, 52);
     for (let x = 0; x < 128; x += 32) g.fillRect(x, 76, 3, 52);
@@ -86,7 +86,7 @@ export function parkingTexture() {
 
 export function fieldTexture() {
   return canvasTex('field', 256, 256, (g) => {
-    for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#5f9e3c' : '#69a845'; g.fillRect(0, i * 32, 256, 32); }
+    for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#7f9a5a' : '#8aa663'; g.fillRect(0, i * 32, 256, 32); }
     g.strokeStyle = '#f4f4f4'; g.lineWidth = 3;
     g.strokeRect(12, 12, 232, 232);
     g.beginPath(); g.moveTo(12, 128); g.lineTo(244, 128); g.stroke();
@@ -95,14 +95,27 @@ export function fieldTexture() {
   }, false);
 }
 
+/** Model-railway "flock" lawn: sage stipple with a faint 20 m survey grid. One tile = 20 m. */
 export function grassTexture() {
   return canvasTex('grass', 256, 256, (g) => {
-    g.fillStyle = '#7fb24f'; g.fillRect(0, 0, 256, 256);
+    g.fillStyle = '#b3bb8c'; g.fillRect(0, 0, 256, 256);
     const r = rng(3);
-    for (let i = 0; i < 1800; i++) {
-      g.fillStyle = r() > 0.5 ? 'rgba(60,110,40,0.18)' : 'rgba(170,210,110,0.16)';
-      g.fillRect(r() * 256, r() * 256, 2 + r() * 3, 2 + r() * 3);
+    for (let i = 0; i < 2600; i++) {
+      g.fillStyle = r() > 0.5 ? 'rgba(110,125,70,0.22)' : 'rgba(225,225,180,0.22)';
+      g.beginPath(); g.arc(r() * 256, r() * 256, 0.8 + r() * 1.6, 0, Math.PI * 2); g.fill();
     }
+    g.strokeStyle = 'rgba(123,17,19,0.16)'; g.lineWidth = 2;
+    g.strokeRect(0, 0, 256, 256);
+  });
+}
+
+/** Light table surface around the model, with a faint cutting-mat grid. */
+export function tableTexture() {
+  return canvasTex('table', 256, 256, (g) => {
+    g.fillStyle = '#efe6d6'; g.fillRect(0, 0, 256, 256);
+    g.strokeStyle = 'rgba(123,17,19,0.08)'; g.lineWidth = 1;
+    for (let i = 0; i <= 256; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 256); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(256, i); g.stroke(); }
+    g.strokeStyle = 'rgba(123,17,19,0.16)'; g.lineWidth = 2; g.strokeRect(0, 0, 256, 256);
   });
 }
 
