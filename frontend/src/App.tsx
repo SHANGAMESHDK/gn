@@ -10,6 +10,8 @@ import { CampusARHunt } from './pages/CampusARHunt';
 import { Buildings } from './pages/Buildings';
 import { Stalls } from './pages/Stalls';
 import { OBSync } from './pages/OBSync';
+import { lazy, Suspense } from 'react';
+const Campus3D = lazy(() => import('./pages/Campus3D').then((m) => ({ default: m.Campus3D })));
 
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
@@ -38,6 +40,7 @@ function AnimatedRoutes() {
         <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/map" element={<Map />} />
+          <Route path="/map3d" element={<Suspense fallback={null}><Campus3D /></Suspense>} />
           <Route path="/buildings" element={<Buildings />} />
           <Route path="/stalls" element={<Stalls />} />
           <Route path="/admin" element={<Admin />} />
