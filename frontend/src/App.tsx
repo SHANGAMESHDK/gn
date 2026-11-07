@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 
@@ -40,7 +40,8 @@ function AnimatedRoutes() {
         <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/map" element={<Map />} />
-          <Route path="/map3d" element={<Suspense fallback={null}><Campus3D /></Suspense>} />
+          <Route path="/3d" element={<Suspense fallback={null}><Campus3D /></Suspense>} />
+          <Route path="/map3d" element={<Navigate to="/3d" replace />} />
           <Route path="/buildings" element={<Buildings />} />
           <Route path="/stalls" element={<Stalls />} />
           <Route path="/admin" element={<Admin />} />

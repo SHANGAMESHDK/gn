@@ -19,7 +19,7 @@ export function Labels() {
         return (
           <Html portal={labelPortal} key={b.id} position={[b.center[0], h, b.center[1]]} center zIndexRange={[10, 0]} distanceFactor={undefined}>
             <button
-              onClick={() => { setState({ selectedBuildingId: b.id, selectedRoomId: null }); focusOn(b.center, Math.max(70, b.radius * 2.6)); }}
+              onClick={() => { setState({ selectedBuildingId: b.id, selectedRoomId: null, selectedPinId: null }); focusOn(b.center, Math.max(70, b.radius * 2.6)); }}
               className={`pointer-events-auto px-2 py-0.5 rounded-md text-[11px] font-bold whitespace-nowrap shadow border transition ${active ? 'bg-[#C8A951] text-[#2d2019] border-white' : 'bg-[#1b1216]/80 text-white border-white/20 hover:bg-[#7B1113]'}`}
             >
               {buildingLabel(b, lang)}

@@ -87,13 +87,43 @@ KIND_BY_NAME = {
     "Staff Parking": "parking", "Playground": "ground", "Cricket Nets": "nets",
     "OAT": "plaza", "TRP": "auditorium", "Temple": "temple",
 }
-DISPLAY_NAME = {"Office": "Admin Block", "TRP": "TRP Auditorium", "OAT": "Open Air Theatre (OAT)"}
+DISPLAY_NAME = {"Office": "Admin Block", "TRP": "TRP Auditorium", "OAT": "Open Air Theatre (OAT)", "Civil Block": "Civil & PG Block"}
+# What each building houses. Sources: en.wikipedia.org/wiki/Easwari_Engineering_College (blocks,
+# departments, library in the PG block), careers360.com facilities page (library floors, halls),
+# ram's photos (signboards). "likely" marks a guess that still needs confirming.
+ABOUT = {
+    "Main Block": "Computer Science & Engineering, Electrical & Electronics Engineering and Information Technology departments.",
+    "Civil Block": "Civil Engineering and the PG block (MBA). Central Library on the first and second floors (about 2,100 sq m, 450 seats). Civil Gallery Halls and MBA Seminar Halls.",
+    "Mechanical Block": "Mechanical Engineering department and workshops.",
+    "EB Block": "Electronics block (likely): Electronics & Communication and Electronics & Instrumentation.",
+    "Automobile Dept": "Automobile Engineering department and labs.",
+    "Office": "Administrative Block: Principal's office and college administration.",
+    "Canteen Block": "Canteen and food court.",
+    "Dental Block": "SRM Dental College (beside the engineering college).",
+    "Girls Hostel": "Girls' hostel.",
+    "Academic Block": "Academic block. Departments here are not confirmed yet.",
+    "Block 2": "Academic block. Departments here are not confirmed yet.",
+    "Block 3": "Academic block. Departments here are not confirmed yet.",
+    "TRP": "TRP Auditorium: stage for college events.",
+    "OAT": "Open Air Theatre and paved plaza used for events and stalls.",
+    "Temple": "Campus temple.",
+    "Playground": "Football field and sports ground.",
+    "Cricket Nets": "Cricket practice nets.",
+}
 FLOORS_FROM_PHOTOS = {"Main Block": 6, "Mechanical Block": 8, "Civil Block": 7, "Office": 5}
 STYLE_BY_NAME = {
     "Main Block": {"roof": "blue-gable", "trim": "#e8c44a", "wall": "#f4f1ea", "courtyard": True},
     "Civil Block": {"roof": "grey-sheet", "trim": "#e6b83a", "wall": "#f6f3ec", "pilasters": True},
     "Mechanical Block": {"roof": "flat", "trim": "#e6c25a", "wall": "#f2f0ea", "ribbon": True},
     "Office": {"roof": "flat", "trim": "#e8c44a", "wall": "#f4f2ec", "canopy": "green"},
+    "EB Block": {"roof": "flat", "trim": "#e0b94d", "wall": "#f3f0e8", "pilasters": True},
+    "Block 2": {"roof": "flat", "trim": "#e2c25a", "wall": "#f1eee6"},
+    "Block 3": {"roof": "flat", "trim": "#e2c25a", "wall": "#f1eee6", "ribbon": True},
+    "Academic Block": {"roof": "grey-sheet", "trim": "#e2c25a", "wall": "#f3efe6"},
+    "Dental Block": {"roof": "flat", "trim": "#8fb3d9", "wall": "#f2f4f6"},
+    "Canteen Block": {"roof": "grey-sheet", "trim": "#d9a441", "wall": "#f5efe3"},
+    "Girls Hostel": {"roof": "flat", "trim": "#d98a6a", "wall": "#f6efe8"},
+    "Automobile Dept": {"roof": "grey-sheet", "trim": "#e2c25a", "wall": "#efece4"},
 }
 
 
@@ -127,7 +157,7 @@ def main():
             "color": meta.get("color"),
             "walkable": meta.get("walkable", kind in ("parking", "ground", "plaza")),
             "style": STYLE_BY_NAME.get(name, {}),
-            "description": desc or "",
+            "description": ABOUT.get(name) or desc or "",
             "outline": [[round(x, 7), round(y, 7)] for x, y in outer],
             "holes": [[[round(x, 7), round(y, 7)] for x, y in h] for h in holes],
         })

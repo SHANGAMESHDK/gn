@@ -10,8 +10,9 @@ export function blockedAt(p: XZ, margin = 0.6): boolean {
     const probes: XZ[] = [p, [p[0] + margin, p[1]], [p[0] - margin, p[1]], [p[0], p[1] + margin], [p[0], p[1] - margin]];
     for (const q of probes) {
       if (!pointInPolygon(q, b.poly)) continue;
-      const court = indoorPlans.get(b.id)?.courtyard ?? (b.holes[0] as XZ[] | undefined);
-      if (court && pointInPolygon(q, court)) continue;
+      const plan = indoorPlans.get(b.id)?.courtyard;
+      const court = plan && plan.length ? plan : (b.holes[0] as XZ[] | undefined);
+      if (court && court.length && pointInPolygon(q, court)) continue;
       return true;
     }
   }

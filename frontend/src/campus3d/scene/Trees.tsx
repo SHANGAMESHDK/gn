@@ -2,9 +2,12 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { bounds, buildings, edges, nodeById } from '../data';
 import { distToSegment, pointInPolygon, rng, type XZ } from '../geo';
+import { useStore } from '../store';
 
 /** Instanced trees and palms scattered on open grass (deterministic). */
 export function Trees() {
+  const low = useStore((s) => s.lowQuality);
+  const target = low ? 180 : 520;
   const { trunks, crowns, palms } = useMemo(() => {
     const r = rng(42);
     const spots: { p: XZ; s: number; palm: boolean }[] = [];
@@ -13,7 +16,7 @@ export function Trees() {
       buildings.some((b) => pointInPolygon(p, b.poly) || b.poly.some((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) < 5)) ||
       segs.some(([a, b]) => distToSegment(p, a, b) < 6);
     let tries = 0;
-    while (spots.length < 520 && tries++ < 9000) {
+    while (spots.length < target && tries++ < 9000) {
       const p: XZ = [bounds.minX + r() * (bounds.maxX - bounds.minX), bounds.minZ + r() * (bounds.maxZ - bounds.minZ)];
       if (blocked(p)) continue;
       if (spots.some((s) => Math.hypot(s.p[0] - p[0], s.p[1] - p[1]) < 5)) continue;
@@ -37,10 +40,10 @@ export function Trees() {
       m.compose(v.set(t.p[0], 3.5 * t.s, t.p[1]), q.identity(), new THREE.Vector3(t.s, t.s, t.s)); palmTrunks.setMatrixAt(i, m);
       m.compose(v.set(t.p[0], 7.2 * t.s, t.p[1]), q.setFromEuler(new THREE.Euler(Math.PI, 0, 0)), new THREE.Vector3(t.s, t.s, t.s)); palmTops.setMatrixAt(i, m);
     });
-    for (const im of [trunks, crowns, palmTrunks, palmTops]) im.castShadow = true;
+    for (const im of [trunks, crowns, palmTrunks, palmTops]) im.castShadow = !low;
     palms.add(palmTrunks, palmTops);
     return { trunks, crowns, palms };
-  }, []);
+  }, [target, low]);
   return (
     <group>
       <primitive object={trunks} />

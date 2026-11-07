@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { bounds, buildings, edges, nodeById, nodes, solidBuildings, type Building } from '../data';
 import { pointInPolygon } from '../geo';
-import { fieldTexture, grassTexture, parkingTexture, pavingTexture, signTexture } from '../textures';
+import { fieldTexture, grassTexture, parkingTexture, pavingTexture } from '../textures';
 import { flatShape, orientedSize } from './shapes';
 import { flatMaterial } from './materials';
 import { setState, focusOn } from '../store';
+import { Details } from './Details';
 
 function Grass() {
   const w = bounds.maxX - bounds.minX + 1600, d = bounds.maxZ - bounds.minZ + 1600;
@@ -178,29 +179,13 @@ function Temple({ b }: { b: Building }) {
 
 /** Main gate arch and the flag post. */
 function Landmarks() {
-  const gate = nodes.find((n) => n.name === 'GATE_MAIN_IN');
   const main = buildings.find((b) => b.sourceName === 'Main Block');
-  const sign = useMemo(() => signTexture('EASWARI ENGINEERING COLLEGE', '#7B1113', '#f6e7b4', 'Ramapuram, Chennai'), []);
-  if (!gate) return null;
-  const next = nodeById.get(edges.find((e) => e.a === gate.id || e.b === gate.id)!.a === gate.id ? edges.find((e) => e.a === gate.id)!.b : edges.find((e) => e.b === gate.id)!.a)!;
-  const ang = Math.atan2(next.p[1] - gate.p[1], next.p[0] - gate.p[0]);
+  if (!main) return null;
   return (
-    <group>
-      <group position={[gate.p[0], 0, gate.p[1]]} rotation={[0, -ang + Math.PI / 2, 0]}>
-        {[-6.5, 6.5].map((x) => (
-          <mesh key={x} position={[x, 3.5, 0]} material={flatMaterial('#efe6d2')} castShadow><boxGeometry args={[1.4, 7, 1.4]} /></mesh>
-        ))}
-        <mesh position={[0, 7.4, 0]} material={flatMaterial('#7B1113')} castShadow><boxGeometry args={[15, 1.8, 1]} /></mesh>
-        <mesh position={[0, 7.4, 0.52]}><planeGeometry args={[13.6, 1.5]} /><meshStandardMaterial map={sign} /></mesh>
-        <mesh position={[0, 7.4, -0.52]} rotation={[0, Math.PI, 0]}><planeGeometry args={[13.6, 1.5]} /><meshStandardMaterial map={sign} /></mesh>
-      </group>
-      {main && (
-        <group position={[main.center[0] + 0, 0, main.center[1] + main.radius + 10]}>
-          <mesh position={[0, 0.3, 0]} material={flatMaterial('#d8d2c4')}><cylinderGeometry args={[2.2, 2.6, 0.6, 16]} /></mesh>
-          <mesh position={[0, 7, 0]} material={flatMaterial('#c9ccd1', { metalness: 0.7, roughness: 0.3 })}><cylinderGeometry args={[0.08, 0.12, 14, 8]} /></mesh>
-          <Flag />
-        </group>
-      )}
+    <group position={[main.center[0], 0, main.center[1] + main.radius + 10]}>
+      <mesh position={[0, 0.3, 0]} material={flatMaterial('#d8d2c4')}><cylinderGeometry args={[2.2, 2.6, 0.6, 16]} /></mesh>
+      <mesh position={[0, 7, 0]} material={flatMaterial('#c9ccd1', { metalness: 0.7, roughness: 0.3 })}><cylinderGeometry args={[0.08, 0.12, 14, 8]} /></mesh>
+      <Flag />
     </group>
   );
 }
@@ -235,6 +220,7 @@ export function Ground() {
       {buildings.filter((b) => b.kind === 'auditorium').map((b) => <Auditorium key={b.id} b={b} />)}
       {buildings.filter((b) => b.kind === 'temple').map((b) => <Temple key={b.id} b={b} />)}
       <Landmarks />
+      <Details />
     </group>
   );
 }

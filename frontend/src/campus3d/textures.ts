@@ -115,3 +115,56 @@ export function signTexture(text: string, bg: string, fg: string, sub?: string) 
     if (sub) { g.font = '600 26px "DM Sans", Arial, sans-serif'; g.fillText(sub, 256, 100, 490); }
   }, false);
 }
+
+/** Brick panel with raised gold "SRM" letters (main gate central pillar). */
+export function srmPanelTexture() {
+  return canvasTex('srm-panel', 256, 192, (g) => {
+    g.fillStyle = '#8a4a36'; g.fillRect(0, 0, 256, 192);
+    g.strokeStyle = 'rgba(40,18,10,0.45)'; g.lineWidth = 2;
+    for (let y = 0, row = 0; y < 192; y += 16, row++) {
+      g.beginPath(); g.moveTo(0, y); g.lineTo(256, y); g.stroke();
+      for (let x = row % 2 ? 16 : 0; x < 256; x += 32) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 16); g.stroke(); }
+    }
+    g.fillStyle = '#d9b25a'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'bold 96px Georgia, "Times New Roman", serif';
+    g.shadowColor = 'rgba(0,0,0,0.5)'; g.shadowOffsetY = 3; g.shadowBlur = 4;
+    g.fillText('SRM', 128, 100, 230);
+  }, false);
+}
+
+/** Black plaque with gold lettering under the SRM panel. */
+export function plaqueTexture() {
+  return canvasTex('gate-plaque', 256, 160, (g) => {
+    g.fillStyle = '#c9a66b'; g.fillRect(0, 0, 256, 160);
+    g.fillStyle = '#141414'; g.fillRect(10, 10, 236, 140);
+    g.fillStyle = '#e2c36f'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'bold 46px Georgia, "Times New Roman", serif';
+    g.fillText('EASWARI', 128, 58, 220);
+    g.font = 'bold 26px Georgia, "Times New Roman", serif';
+    g.fillText('ENGINEERING COLLEGE', 128, 108, 226);
+  }, false);
+}
+
+/** Black wrought-iron gate leaf with a band of decorative rings (transparent gaps). */
+export function ironGateTexture() {
+  return canvasTex('iron-gate', 256, 256, (g) => {
+    g.clearRect(0, 0, 256, 256);
+    g.strokeStyle = '#151515'; g.fillStyle = '#151515'; g.lineWidth = 5;
+    g.strokeRect(3, 3, 250, 250);
+    for (let x = 16; x < 256; x += 16) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 256); g.stroke(); }
+    g.fillRect(0, 70, 256, 6); g.fillRect(0, 120, 256, 6); g.fillRect(0, 200, 256, 6);
+    g.lineWidth = 4;
+    for (let x = 16; x < 256; x += 32) { g.beginPath(); g.arc(x + 8, 98, 11, 0, Math.PI * 2); g.stroke(); }
+    for (let x = 8; x < 256; x += 16) { g.beginPath(); g.moveTo(x - 5, 14); g.lineTo(x, 2); g.lineTo(x + 5, 14); g.fill(); }
+  }, false);
+}
+
+/** Simple black railing used on top of the compound wall. */
+export function railingTexture() {
+  return canvasTex('railing', 128, 64, (g) => {
+    g.clearRect(0, 0, 128, 64);
+    g.fillStyle = '#1a1a1a';
+    g.fillRect(0, 2, 128, 4); g.fillRect(0, 56, 128, 4);
+    for (let x = 4; x < 128; x += 12) g.fillRect(x, 0, 3, 64);
+  });
+}

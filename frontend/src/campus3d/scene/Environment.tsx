@@ -21,6 +21,8 @@ function sunFor(mode: 'auto' | 'day' | 'night', now: Date) {
 export function Environment() {
   const timeMode = useStore((s) => s.timeMode);
   const rain = useStore((s) => s.rain);
+  const low = useStore((s) => s.lowQuality);
+  const ar = useStore((s) => s.mode === 'ar');
   const sun = useRef<THREE.DirectionalLight>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
   const get = useThree((st) => st.get);
@@ -44,6 +46,7 @@ export function Environment() {
     }
     if (hemi.current) hemi.current.intensity = 0.25 + 0.75 * day * (rain ? 0.8 : 1);
     const scene = get().scene;
+    if (ar) { scene.background = null; return; }
     const bg = new THREE.Color().lerpColors(new THREE.Color('#0b1020'), new THREE.Color(rain ? '#9aa6b2' : '#bfe3ff'), day);
     scene.background = bg;
     if (scene.fog) (scene.fog as THREE.Fog).color.copy(bg);
@@ -53,13 +56,13 @@ export function Environment() {
   const { alt, dir } = sunState;
   return (
     <>
-      <fog attach="fog" args={['#bfe3ff', rain ? 160 : 420, rain ? 700 : 1400]} />
+      {!ar && <fog attach="fog" args={['#bfe3ff', rain ? 160 : 420, rain ? 700 : 1400]} />}
       <hemisphereLight ref={hemi} args={['#dff2ff', '#5d7a3a', 0.9]} />
       <directionalLight
         ref={sun}
-        castShadow
+        castShadow={!low}
         intensity={2}
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={low ? [1024, 1024] : [2048, 2048]}
         shadow-camera-left={-260}
         shadow-camera-right={260}
         shadow-camera-top={260}
@@ -67,10 +70,10 @@ export function Environment() {
         shadow-camera-far={900}
         shadow-bias={-0.0004}
       />
-      {alt > -0.05 && !rain && <Sky sunPosition={[dir.x, dir.y, dir.z]} distance={4000} turbidity={6} rayleigh={1.2} />}
-      {alt < 0.05 && <Stars radius={900} depth={60} count={2500} factor={6} fade />}
+      {alt > -0.05 && !rain && !low && !ar && <Sky sunPosition={[dir.x, dir.y, dir.z]} distance={4000} turbidity={6} rayleigh={1.2} />}
+      {alt < 0.05 && !ar && <Stars radius={900} depth={60} count={low ? 600 : 2500} factor={6} fade />}
       {alt < 0.1 && <StreetLights />}
-      {rain && <Rain />}
+      {rain && !ar && <Rain count={low ? 800 : 3000} />}
     </>
   );
 }
@@ -87,8 +90,7 @@ function StreetLights() {
   );
 }
 
-function Rain() {
-  const count = 3000;
+function Rain({ count }: { count: number }) {
   const { geo, mat } = useMemo(() => {
     const pos = new Float32Array(count * 6);
     const r = rng(11);
@@ -99,7 +101,7 @@ function Rain() {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     return { geo, mat: new THREE.LineBasicMaterial({ color: '#cfe3f2', transparent: true, opacity: 0.45 }) };
-  }, []);
+  }, [count]);
   const ref = useRef<THREE.LineSegments>(null);
   useFrame((_, dt) => {
     const a = geo.getAttribute('position') as THREE.BufferAttribute;

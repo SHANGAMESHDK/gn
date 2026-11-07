@@ -19,14 +19,14 @@ export function IndoorView() {
   const selectedRoom = useStore((s) => s.selectedRoomId);
   const plan = indoor ? indoorPlans.get(indoor.buildingId) : null;
   const b = indoor ? buildingById.get(indoor.buildingId) : null;
-  const below = useMemo(() => (b && plan && indoor && indoor.level > 0 ? extrude(b.poly, indoor.level * FLOOR_HEIGHT, [plan.courtyard]) : null), [b, plan, indoor]);
+  const below = useMemo(() => (b && plan && indoor && indoor.level > 0 ? extrude(b.poly, indoor.level * FLOOR_HEIGHT, plan.courtyard.length ? [plan.courtyard] : []) : null), [b, plan, indoor]);
   if (!indoor || !plan || !b) return null;
   const floor = plan.floors[indoor.level];
   const y = indoor.level * FLOOR_HEIGHT;
   return (
     <group>
       {below && <mesh geometry={below} material={[flatMaterial('#d9d2c3'), facadeMaterial({ wall: b.style.wall ?? '#f3efe6', trim: b.style.trim ?? '#e2c25a' })]} castShadow receiveShadow />}
-      <mesh geometry={flatShape(b.poly, y + 0.05, [plan.courtyard])} material={flatMaterial('#9a948a')} receiveShadow />
+      <mesh geometry={flatShape(b.poly, y + 0.05, plan.courtyard.length ? [plan.courtyard] : [])} material={flatMaterial('#9a948a')} receiveShadow />
       {floor.rooms.map((r) => <RoomTile key={r.id} r={r} y={y} active={selectedRoom === r.id} />)}
       {floor.rooms.map((r) => (
         <Html portal={labelPortal} key={r.id + 'l'} position={[r.center[0], y + 3.2, r.center[1]]} center zIndexRange={[12, 0]}>

@@ -16,7 +16,7 @@ import { BuildingSidebar } from './BuildingSidebar';
 import { useLiveWeather } from '../../hooks/useLiveWeather';
 import { WeatherOverlay } from './WeatherOverlay';
 import { useTelemetry } from '../../hooks/useTelemetry';
-import { Activity, Thermometer, MapPin, Store } from 'lucide-react';
+import { Activity, Thermometer, MapPin, Store, Box } from 'lucide-react';
 import { FloorPlanViewer } from './FloorPlanViewer';
 import { ExplodedBuildingView } from './ExplodedBuildingView';
 export function CampusMap() {
@@ -29,6 +29,8 @@ export function CampusMap() {
   const destLng = searchParams.get('destination_lng');
   const trackCode = searchParams.get('track');
   const sourceNodeId = searchParams.get('source_node_id');
+  // ?b=<building name> comes from the 3D view (and from shared links)
+  const buildingParam = searchParams.get('b');
 
   // Center is [lng, lat] in MapLibre
   const initialCenter: [number, number] = [80.179666, 13.031836];
@@ -373,6 +375,35 @@ export function CampusMap() {
       setCurrentBlockName(null);
     }
   }, [gps.latitude, gps.longitude, buildingListData, proximityThreshold]);
+
+  // Select and fly to the building named in ?b= once the footprints have loaded.
+  const appliedBuildingParam = useRef<string | null>(null);
+  useEffect(() => {
+    if (!buildingParam || !buildingsGeoJSON || appliedBuildingParam.current === buildingParam) return;
+    const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    type Feat = { properties?: Record<string, unknown> & { Name?: string }; geometry?: { type: string; coordinates: unknown } };
+    type ListItem = { name?: string; description?: string; cover_photo?: string; node_id?: number };
+    const feature = ((buildingsGeoJSON.features || []) as Feat[]).find((f) => norm(f.properties?.Name || '') === norm(buildingParam));
+    if (!feature) return;
+    appliedBuildingParam.current = buildingParam;
+    const props = { ...feature.properties };
+    const match = (buildingListData as ListItem[]).find((b) => (b.name || '').toLowerCase() === (props.Name || '').toLowerCase());
+    if (match) {
+      if (!props.description && match.description) props.description = match.description;
+      if (!props.cover_photo && match.cover_photo) props.cover_photo = match.cover_photo;
+      if (!props.node_id && match.node_id) props.node_id = match.node_id;
+    }
+    // deferred so the selection is not set synchronously inside the effect
+    queueMicrotask(() => setSelectedBuilding(props));
+    // centre of the outer ring
+    const coords = feature.geometry?.coordinates as number[][][] | number[][][][] | undefined;
+    const ring = ((feature.geometry?.type === 'MultiPolygon' ? (coords as number[][][][])?.[0]?.[0] : (coords as number[][][])?.[0]) || []) as [number, number][];
+    if (ring.length && mapRef.current && !destinationNodeIdParam) {
+      const lng = ring.reduce((a, c) => a + c[0], 0) / ring.length;
+      const lat = ring.reduce((a, c) => a + c[1], 0) / ring.length;
+      mapRef.current.getMap().flyTo({ center: [lng, lat], zoom: 18.5, duration: 1200 });
+    }
+  }, [buildingParam, buildingsGeoJSON, buildingListData, destinationNodeIdParam]);
 
   const handleMapClick = (event: any) => {
     const feature = event.features && event.features[0];
@@ -831,6 +862,15 @@ export function CampusMap() {
 
       {/* Map Floating Actions */}
       <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[1000] flex flex-col gap-2.5">
+        {/* 3D view of the same building */}
+        <button
+          onClick={() => navigate(selectedBuilding?.Name ? `/3d?b=${encodeURIComponent(selectedBuilding.Name)}` : '/3d')}
+          className="bg-[#7B1113] text-white p-3 rounded-full shadow-lg hover:bg-[#5e0d0f] transition-all flex items-center justify-center border border-white/20"
+          title={selectedBuilding?.Name ? `View ${selectedBuilding.Name} in 3D` : 'Open the 3D campus'}
+        >
+          <Box size={22} />
+        </button>
+
         {/* AR Mode Button */}
         <button
           onClick={() => navigate('/ar')}
