@@ -4,10 +4,10 @@ from pydantic import BaseModel
 import google.generativeai as genai
 import base64
 import json
+from app.core.knowledge import fact_store, knowledge_prompt
 
 router = APIRouter()
 
-KNOWLEDGE_FILE = "app/data/ai_knowledge.json"
 
 # Configure the SDK
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
@@ -39,15 +39,8 @@ You MUST respond with a valid JSON object matching this schema:
 """
 
 def get_knowledge_context() -> str:
-    if os.path.exists(KNOWLEDGE_FILE):
-        try:
-            with open(KNOWLEDGE_FILE, "r") as f:
-                facts = json.load(f)
-                if facts:
-                    return "Here are facts you have previously learned from users:\n- " + "\n- ".join(facts) + "\n\n"
-        except Exception:
-            pass
-    return ""
+    # campus data (buildings, events, stalls) + facts learned from users; see app/core/knowledge.py
+    return knowledge_prompt()
 
 def generate_content(prompt: str, image_base64: str | None = None) -> str:
     if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
@@ -127,18 +120,8 @@ async def chat_with_assistant(request: ChatRequest):
             learned_fact = result.get("learned_fact")
             
             if learned_fact:
-                # Save new fact
-                facts = []
-                if os.path.exists(KNOWLEDGE_FILE):
-                    try:
-                        with open(KNOWLEDGE_FILE, "r") as f:
-                            facts = json.load(f)
-                    except Exception:
-                        pass
-                facts.append(learned_fact)
-                with open(KNOWLEDGE_FILE, "w") as f:
-                    json.dump(facts, f, indent=2)
-                    
+                fact_store.add(learned_fact, source="chat")
+
             return {"reply": reply}
         else:
             # Standard text response

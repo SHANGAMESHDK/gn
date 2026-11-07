@@ -49,6 +49,14 @@ npm run dev
 ### 3. Environment Variables
 Make sure to configure your `.env` (backend) and `.env.local` (frontend) files with the appropriate keys for Gemini, Firebase, and MapLibre API providers.
 
+| Where | Variable | What it is for |
+| --- | --- | --- |
+| backend | `GEMINI_API_KEY` | Radhimaa assistant |
+| backend | `FIREBASE_SERVICE_ACCOUNT_JSON` (or `GOOGLE_APPLICATION_CREDENTIALS`) | Lets Radhimaa save learned facts in Firestore (collection `ai_knowledge`) so they survive redeploys. Without it, facts go to `app/data/ai_knowledge.json` |
+| frontend | `VITE_CARTO_KEY` | CARTO basemap tiles on the 2D map |
+
+Radhimaa also reads the live campus data on every chat: `app/data/campus_info.json` (buildings; regenerate with `python backend/scripts/export_campus3d.py`), `events.json` and `stalls.json`.
+
 ## 🔐 Admin Access
 To access the Admin Gateway, log in via Google SSO using an authorized administrator email. From the dashboard, you can visually edit the routing graph, add upcoming hackathons, and manage live occupancy rules!
 

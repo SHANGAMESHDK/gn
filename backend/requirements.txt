@@ -3,6 +3,7 @@ annotated-types==0.7.0
 anyio==4.14.1
 attrs==26.1.0
 google-generativeai
+firebase-admin
 python-dotenv==1.2.2
 certifi==2026.6.17
 click==8.4.2

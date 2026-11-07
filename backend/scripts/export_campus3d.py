@@ -19,6 +19,8 @@ BASE = Path(__file__).resolve().parents[1]
 GPKG = BASE / "gis" / "Campus.gpkg"
 DATA = BASE / "app" / "data"
 OUT = BASE.parent / "frontend" / "src" / "campus3d" / "data" / "campus.json"
+# Short building facts for the Radhimaa assistant (app/core/knowledge.py)
+INFO_OUT = DATA / "campus_info.json"
 
 
 # ---------------------------------------------------------------- geometry ---
@@ -210,6 +212,16 @@ def main():
         "edges": edge_list,
     }, indent=1))
     print(f"wrote {OUT} : {len(buildings)} buildings, {len(nodes)} nodes, {len(edge_list)} edges")
+
+    info = [{
+        "name": b["name"],
+        **({"also_called": b["sourceName"]} if b["sourceName"] != b["name"] else {}),
+        "kind": b["kind"],
+        **({"floors": b["floors"], "floors_estimated": b["floorsEstimated"]} if b["kind"] == "block" else {}),
+        "description": b["description"],
+    } for b in buildings]
+    INFO_OUT.write_text(json.dumps(info, indent=1, ensure_ascii=False))
+    print(f"wrote {INFO_OUT} : {len(info)} buildings")
 
 
 if __name__ == "__main__":

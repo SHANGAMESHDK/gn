@@ -1,0 +1,134 @@
+[
+ {
+  "name": "Main Block",
+  "kind": "block",
+  "floors": 6,
+  "floors_estimated": false,
+  "description": "Computer Science & Engineering, Electrical & Electronics Engineering and Information Technology departments."
+ },
+ {
+  "name": "EB Block",
+  "kind": "block",
+  "floors": 8,
+  "floors_estimated": true,
+  "description": "Electronics block (likely): Electronics & Communication and Electronics & Instrumentation."
+ },
+ {
+  "name": "Block 3",
+  "kind": "block",
+  "floors": 6,
+  "floors_estimated": true,
+  "description": "Academic block. Departments here are not confirmed yet."
+ },
+ {
+  "name": "Block 2",
+  "kind": "block",
+  "floors": 7,
+  "floors_estimated": true,
+  "description": "Academic block. Departments here are not confirmed yet."
+ },
+ {
+  "name": "Canteen Block",
+  "kind": "block",
+  "floors": 6,
+  "floors_estimated": true,
+  "description": "Canteen and food court."
+ },
+ {
+  "name": "Office",
+  "kind": "block",
+  "floors": 2,
+  "floors_estimated": true,
+  "description": "College office block (the Admin Block is a separate building)."
+ },
+ {
+  "name": "Dental Block",
+  "kind": "block",
+  "floors": 6,
+  "floors_estimated": true,
+  "description": "SRM Dental College (beside the engineering college)."
+ },
+ {
+  "name": "Mechanical Block",
+  "kind": "block",
+  "floors": 8,
+  "floors_estimated": false,
+  "description": "Mechanical Engineering department and workshops."
+ },
+ {
+  "name": "Civil & PG Block",
+  "also_called": "Civil Block",
+  "kind": "block",
+  "floors": 7,
+  "floors_estimated": false,
+  "description": "Civil Engineering and the PG block (MBA). Central Library on the first and second floors (about 2,100 sq m, 450 seats). Civil Gallery Halls and MBA Seminar Halls."
+ },
+ {
+  "name": "Girls Hostel",
+  "kind": "block",
+  "floors": 2,
+  "floors_estimated": true,
+  "description": "Girls' hostel."
+ },
+ {
+  "name": "Academic Block",
+  "kind": "block",
+  "floors": 7,
+  "floors_estimated": true,
+  "description": "Academic block. Departments here are not confirmed yet."
+ },
+ {
+  "name": "Automobile Dept",
+  "kind": "block",
+  "floors": 2,
+  "floors_estimated": true,
+  "description": "Automobile Engineering department and labs."
+ },
+ {
+  "name": "Mech Parking",
+  "kind": "parking",
+  "description": ""
+ },
+ {
+  "name": "Bus Parking",
+  "kind": "parking",
+  "description": ""
+ },
+ {
+  "name": "Temple",
+  "kind": "temple",
+  "description": "Campus temple."
+ },
+ {
+  "name": "Cricket Nets",
+  "kind": "nets",
+  "description": "Cricket practice nets."
+ },
+ {
+  "name": "Student Parking",
+  "kind": "parking",
+  "description": ""
+ },
+ {
+  "name": "Staff Parking",
+  "kind": "parking",
+  "description": ""
+ },
+ {
+  "name": "Open Air Theatre (OAT)",
+  "also_called": "OAT",
+  "kind": "plaza",
+  "description": "Open Air Theatre and paved plaza used for events and stalls."
+ },
+ {
+  "name": "TRP Auditorium",
+  "also_called": "TRP",
+  "kind": "auditorium",
+  "description": "TRP Auditorium: stage for college events."
+ },
+ {
+  "name": "Playground",
+  "kind": "ground",
+  "description": "Football field and sports ground."
+ }
+]
